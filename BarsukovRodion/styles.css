@@ -64,7 +64,6 @@ body {
 }
 
 .header-reset {
-    border: none;
     background: #4a4a4a;
     color: #111;
     font-size: 24px;
@@ -74,17 +73,13 @@ body {
     display: flex;
     align-items: center;
     justify-content: center;
-    border-top: 3px solid #6e6e6e;
-    border-left: 3px solid #6e6e6e;
-    border-right: 3px solid #222;
-    border-bottom: 3px solid #222;
+    border: 3px solid;
+    border-color: #6e6e6e #222 #222 #6e6e6e;
 }
 
 .header-reset:active {
-    border-top: 2px solid #222;
-    border-left: 2px solid #222;
-    border-right: 2px solid #6e6e6e;
-    border-bottom: 2px solid #6e6e6e;
+    border: 2px solid;
+    border-color: #222 #6e6e6e #6e6e6e #222;
     transform: translateY(1px);
 }
 
@@ -97,17 +92,16 @@ body {
 }
 
 .board {
-    display: grid;
-    grid-template-columns: repeat(9, 32px);
-    gap: 0;
-    justify-content: center;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
     border: 3px solid;
     border-color: #555 #1a1a1a #1a1a1a #555;
 }
 
-/* Important when the HTML has <div class="row"> wrappers */
 .row {
-    display: contents;
+    display: grid;
+    grid-template-columns: repeat(9, 32px);
 }
 
 .cell {
@@ -118,16 +112,13 @@ body {
     display: flex;
     align-items: center;
     justify-content: center;
-    cursor: default;
+    cursor: pointer;
     user-select: none;
 }
-
 .cell--closed {
     background: #4a4a4a;
-    border-top: 3px solid #7a7a7a;
-    border-left: 3px solid #7a7a7a;
-    border-right: 3px solid #222;
-    border-bottom: 3px solid #222;
+    border: 3px solid;
+    border-color: #7a7a7a #222 #222 #7a7a7a;
 }
 
 .cell--open {
@@ -136,47 +127,37 @@ body {
     font-weight: bold;
 }
 
-.cell--flag {
-    background: #4a4a4a;
-    border-top: 3px solid #7a7a7a;
-    border-left: 3px solid #7a7a7a;
-    border-right: 3px solid #222;
-    border-bottom: 3px solid #222;
-}
-
-.cell--flag::before {
-    content: "🚩";
-    font-size: 16px;
-}
-
-.cell--flag-correct {
-    background: #4a4a4a;
-    border: 1px solid #33ff66;
-}
-
-.cell--flag-correct::before {
-    content: "🚩";
-    font-size: 16px;
-}
-
+.cell--flag,
+.cell--flag-correct,
 .cell--flag-wrong {
     background: #4a4a4a;
-    border: 1px solid #ff4444;
-    position: relative;
 }
 
+.cell--flag {
+    border: 3px solid;
+    border-color: #7a7a7a #222 #222 #7a7a7a;
+}
+
+.cell--flag::before,
+.cell--flag-correct::before,
 .cell--flag-wrong::before {
     content: "🚩";
     font-size: 16px;
 }
 
+.cell--flag-correct {
+    border: 1px solid #33ff66;
+}
+
+.cell--flag-wrong {
+    border: 1px solid #ff4444;
+    position: relative;
+}
+
 .cell--flag-wrong::after {
     content: "❌";
     position: absolute;
-    top: 0;
-    left: 0;
-    right: 0;
-    bottom: 0;
+    inset: 0;
     display: flex;
     align-items: center;
     justify-content: center;
@@ -185,37 +166,27 @@ body {
     opacity: 0.8;
 }
 
-.cell--mine {
-    background: #262626;
-    border: 1px solid #1a1a1a;
-}
-
-.cell--mine::before {
-    content: "💣";
-    font-size: 18px;
-}
-
+.cell--mine,
 .cell--exploded {
-    background: #ff4444;
     border: 1px solid #1a1a1a;
 }
 
+.cell--mine::before,
 .cell--exploded::before {
     content: "💣";
     font-size: 18px;
 }
 
+.cell--mine     { background: #262626; }
+.cell--exploded { background: #ff4444; }
+
+
 .cell--number-1 { color: #4da6ff; }
 .cell--number-2 { color: #66cc66; }
 .cell--number-3 { color: #ff6666; }
 .cell--number-4 { color: #9966ff; }
-.cell--number-5 { color: #ff9933; }
-.cell--number-6 { color: #33cccc; }
-.cell--number-7 { color: #e6e6e6; }
-.cell--number-8 { color: #808080; }
-
 @media (max-width: 480px) {
-    .board {
+    .row {
         grid-template-columns: repeat(9, 28px);
     }
 
