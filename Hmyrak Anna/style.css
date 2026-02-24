@@ -19,7 +19,7 @@ body {
 }
 
 
-.title_container{
+.title-container{
     width: 270px;
     height: 360px;
     background-color: var(--main-color);
@@ -33,7 +33,7 @@ body {
 }
 
 
-.menu_item{
+.menu-item{
     width: 60px;
     height: 25px;
     background-color: var(--main-color);
@@ -44,7 +44,7 @@ body {
     border-radius: 3px;
 }
 
-.menu_item:hover{
+.menu-item:hover{
     background-color: #a39e9e;
     border-radius: 3px;
 }
@@ -80,7 +80,7 @@ body {
 }
 
 
-.face_btn::before{
+.face-btn::before{
     content: '😊';
     cursor: pointer;
     font-size: 28px;
@@ -96,7 +96,7 @@ body {
 }
 
 
-.face_btn:hover::before{
+.face-btn:hover::before{
     border-color: var(--border-color-inside);
 }
 
@@ -114,7 +114,7 @@ body {
 }
 
 
-.closed_cage{
+.closed-cage{
     width: 25px;
     height: 25px;
     background-color: var(--main-color);
@@ -126,12 +126,12 @@ body {
     border-radius: 3px;
 }
 
-.closed_cage:hover{
-    border-color: var(--border-color-inside)
+.closed-cage:hover{
+    border-color: var(--border-color-inside);
 }
 
 
-.open_cage{
+.open-cage{
     width: 26.5px;
     height: 26.5px;
     background-color: rgb(200, 196, 196);
@@ -196,6 +196,19 @@ body {
     border-radius: 3px;
 }
 
+.flag-bang::before{
+    content: '🚩';
+    width: 25px;
+    height: 25px;
+    background-color: rgb(213, 5, 5);
+    border: 1px solid;
+    border-color: rgb(213, 5, 5);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+
 .mine::before{
     content: '💣';
     width: 25px;
@@ -205,7 +218,7 @@ body {
     align-items: center;
     justify-content: center;
 }
-.mine_bang::before{
+.mine-bang::before{
     content: '💣';
     width: 25px;
     height: 25px;
