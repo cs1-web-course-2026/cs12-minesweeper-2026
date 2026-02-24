@@ -1,0 +1,218 @@
+:root{
+    --main-color: rgb(189, 187, 187);
+    --border-color: #dddddd #837f7f #837f7f #dddddd;
+    --border-color-inside: #837f7f #dddddd #dddddd #837f7f;
+
+}
+
+@font-face {
+    font-family: 'Advanced Pixel LCD-7';
+    src: url('7605-fontps.ttf') format('truetype');
+}
+
+body {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    min-height: 100vh;
+    background-color: var(--main-color);
+}
+
+
+.title_container{
+    width: 270px;
+    height: 360px;
+    background-color: var(--main-color);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-direction: column;
+    border: 5px solid;
+    border-color: var(--border-color);
+    border-radius: 3px;
+}
+
+
+.menu_item{
+    width: 60px;
+    height: 25px;
+    background-color: var(--main-color);
+    cursor: pointer;
+    padding: 5px 6px;
+    margin: 0px 5px;
+    border: 0px solid;
+    border-radius: 3px;
+}
+
+.menu_item:hover{
+    background-color: #a39e9e;
+    border-radius: 3px;
+}
+
+
+.header{
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    width: 241px;
+    height: 50px;
+    background-color: var(--main-color);
+    border: 5px solid;
+    border-color: var(--border-color-inside);
+    padding: 0px 0px;
+    margin: 10px 0px;
+    border-radius: 3px;
+}
+
+
+.counter{
+    font-family: 'Advanced Pixel LCD-7';
+    color: red;
+    width: 100px;
+    height: 35px;
+    background-color: rgb(0, 0, 0);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 17.5px;
+    transform: scaleY(1.3);
+    margin: 10px 10px;
+}
+
+
+.face_btn::before{
+    content: '😊';
+    cursor: pointer;
+    font-size: 28px;
+    width: 40px;
+    height: 40px;
+    background-color: var(--main-color);
+    border: 3px solid;
+    border-color: var(--border-color);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    margin: 0px 15px;
+}
+
+
+.face_btn:hover::before{
+    border-color: var(--border-color-inside);
+}
+
+
+.field{
+    width: 241px;
+    height: 241px;
+    background-color: var(--main-color);
+    border: 5px solid;
+    border-color: var(--border-color-inside);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 3px;
+}
+
+
+.closed_cage{
+    width: 25px;
+    height: 25px;
+    background-color: var(--main-color);
+    border: 3px solid;
+    border-color: var(--border-color);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 3px;
+}
+
+.closed_cage:hover{
+    border-color: var(--border-color-inside)
+}
+
+
+.open_cage{
+    width: 26.5px;
+    height: 26.5px;
+    background-color: rgb(200, 196, 196);
+    border: 2px solid;
+    border-color: var(--border-color-inside);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+
+.num1::before{
+    color: blue;
+    font-size: 25px;
+    content: '1';
+    font-family: "Bitcount Grid Double";
+    font-weight: 700;
+    font-style: normal;
+}
+
+
+.num2::before{
+    color: green;
+    font-size: 25px;
+    content: '2';
+    font-family: "Bitcount Grid Double";
+    font-weight: 700;
+    font-style: normal;
+}
+
+
+.num3::before{
+    color: red;
+    font-size: 25px;
+    content: '3';
+    font-family: "Bitcount Grid Double";
+    font-weight: 700;
+    font-style: normal;
+}
+
+
+.num4::before{
+    color: navy;
+    font-size: 25px;
+    content: '4';
+    font-family: "Bitcount Grid Double";
+    font-weight: 700;
+    font-style: normal;
+}
+
+
+.flag::before{
+    content: '🚩';
+    width: 25px;
+    height: 25px;
+    background-color: var(--main-color);
+    border: 3px solid;
+    border-color: var(--border-color);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 3px;
+}
+
+.mine::before{
+    content: '💣';
+    width: 25px;
+    height: 25px;
+    background-color: var(--main-color);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+.mine_bang::before{
+    content: '💣';
+    width: 25px;
+    height: 25px;
+    background-color: rgb(213, 5, 5);
+    border: 1px solid;
+    border-color: rgb(213, 5, 5);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
