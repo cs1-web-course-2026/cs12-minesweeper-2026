@@ -1,0 +1,130 @@
+body {
+    display: flex;
+    justify-content: center;
+}
+
+.minesweeper {
+	width: 390px;
+	padding: 10px;
+	border: 3px solid #bdbdbd;
+	background: #c0c0c0;
+	box-shadow: inset -2px -2px 0 #7a7a7a, inset 2px 2px 0 #ffffff;
+}
+
+.menu {
+	display: flex;
+	align-items: center;
+	justify-content: space-between;
+	padding: 5px;
+	border: 2px solid #8b8b8b;
+	background: #c0c0c0;
+	box-shadow: inset -2px -2px 0 #ffffff, inset 2px 2px 0 #8f8f8f;
+}
+
+.icon-btn {
+	width: 34px;
+	height: 34px;
+	border: 2px solid #8f8f8f;
+	background: #c0c0c0;
+	box-shadow: inset -2px -2px 0 #8f8f8f, inset 2px 2px 0 #ffffff;
+	cursor: pointer;
+	padding: 0;
+}
+
+.icon-btn svg {
+	width: 20px;
+	height: 20px;
+}
+
+.counter {
+	flex: 1;
+	max-width: 190px;
+	display: flex;
+	justify-content: space-between;
+	align-items: center;
+	gap: 8px;
+}
+
+.counter > div {
+	width: 60px;
+	height: 40px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+	font-size: 30px;
+	font-weight: 700;
+	border: 2px solid #6b6b6b;
+	background: #000;
+	color: #ff2323;
+	box-shadow: inset -1px -1px 0 #b5b5b5, inset 1px 1px 0 #242424;
+}
+
+.playing-field {
+	border: 2px solid #8b8b8b;
+	background: #bdbdbd;
+	box-shadow: inset -2px -2px 0 #ffffff, inset 2px 2px 0 #8f8f8f;
+}
+
+.columns {
+	display: flex;
+}
+
+.columns > button {
+	width: 40px;
+	height: 40px;
+	font-size: 24px;
+	font-weight: 700;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	border: 1px solid #9a9a9a;
+}
+
+.open {
+	background: #e3e3e3;
+}
+
+.closed {
+	background: #c0c0c0;
+	border-color: #8f8f8f;
+	box-shadow: inset 0 0 0 1px #dcdcdc;
+	cursor: pointer;
+}
+
+.closed:hover {
+	background: #c9c9c9;
+}
+
+.n1::before {
+	content: "1";
+	color: #0000ff;
+}
+
+.n2::before {
+	content: "2";
+	color: #008000;
+}
+
+.n3::before {
+	content: "3";
+	color: #ff0000;
+}
+
+.n4::before {
+	content: "4";
+	color: #000080;
+}
+
+.flag::before {
+	content: "🚩";
+	font-size: 20px;
+}
+
+.exploded-bomb {
+	background: #ff3b30;
+}
+
+.exploded-bomb::before {
+	content: "💣";
+	font-size: 20px;
+}
