@@ -142,90 +142,71 @@ body {
     justify-content: center;
 }
 
+.num1::before,
+.num2::before,
+.num3::before,
+.num4::before{
+    font-size: 25px;
+    font-family: "Bitcount Grid Double";
+    font-weight: 700;
+    font-style: normal;
+}
 
 .num1::before{
     color: blue;
-    font-size: 25px;
     content: '1';
-    font-family: "Bitcount Grid Double";
-    font-weight: 700;
-    font-style: normal;
 }
-
 
 .num2::before{
     color: green;
-    font-size: 25px;
     content: '2';
-    font-family: "Bitcount Grid Double";
-    font-weight: 700;
-    font-style: normal;
 }
-
 
 .num3::before{
     color: red;
-    font-size: 25px;
     content: '3';
-    font-family: "Bitcount Grid Double";
-    font-weight: 700;
-    font-style: normal;
 }
-
 
 .num4::before{
     color: navy;
-    font-size: 25px;
     content: '4';
-    font-family: "Bitcount Grid Double";
-    font-weight: 700;
-    font-style: normal;
+}
+
+.flag::before,
+.flag-bang::before,
+.mine::before,
+.mine-bang::before{
+    width: 25px;
+    height: 25px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
 }
 
 
 .flag::before{
     content: '🚩';
-    width: 25px;
-    height: 25px;
     background-color: var(--main-color);
     border: 3px solid;
     border-color: var(--border-color);
-    display: flex;
-    align-items: center;
-    justify-content: center;
     border-radius: 3px;
 }
 
 .flag-bang::before{
     content: '🚩';
-    width: 25px;
-    height: 25px;
     background-color: rgb(213, 5, 5);
     border: 1px solid;
     border-color: rgb(213, 5, 5);
-    display: flex;
-    align-items: center;
-    justify-content: center;
 }
 
 
 .mine::before{
     content: '💣';
-    width: 25px;
-    height: 25px;
     background-color: var(--main-color);
-    display: flex;
-    align-items: center;
-    justify-content: center;
 }
 .mine-bang::before{
     content: '💣';
-    width: 25px;
-    height: 25px;
     background-color: rgb(213, 5, 5);
     border: 1px solid;
     border-color: rgb(213, 5, 5);
-    display: flex;
-    align-items: center;
-    justify-content: center;
 }
