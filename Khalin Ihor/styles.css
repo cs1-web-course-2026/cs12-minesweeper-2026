@@ -197,6 +197,10 @@ body::after {
     box-shadow: inset 0 2px 0 rgba(240, 255, 244, 0.44), 0 3px 0 #2c5e46;
 }
 
+.cell--flag.cell--mine::before {
+    content: "F";
+}
+
 .cell--flag.cell--wrong {
     background: linear-gradient(165deg, #b96b63, #a04e45);
     box-shadow: inset 0 2px 0 rgba(255, 236, 233, 0.44), 0 3px 0 #6d312c;
