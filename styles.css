@@ -1,0 +1,345 @@
+/* ── CSS Custom Properties ─────────────────────────────────── */
+:root {
+  /* Palette */
+  --page-bg: #12122a;
+  --panel-bg: #c0c0c0;
+
+  /* Classic 3‑D border colours */
+  --hi: #ffffff; /* raised: top / left  */
+  --mid: #808080; /* raised: bottom / right (shadow) */
+  --deep: #404040; /* darkest shadow (outer frame)  */
+
+  /* LCD display */
+  --lcd-bg: #000000;
+  --lcd-fg: #ff2020;
+
+  /* Cell dimensions */
+  --cell-size: 34px;
+  --cell-font: 15px;
+  --cell-icon: 18px;
+
+  /* Number colours (classic Minesweeper palette) */
+  --c1: #0000ff;
+  --c2: #007b00;
+  --c3: #ff0000;
+  --c4: #00007b;
+  --c5: #7b0000;
+  --c6: #007b7b;
+  --c7: #000000;
+  --c8: #808080;
+}
+
+/* ── Reset ──────────────────────────────────────────────────── */
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+/* ── Page ───────────────────────────────────────────────────── */
+body {
+  background: var(--page-bg);
+  min-height: 100vh;
+  display: flex;
+  justify-content: center;
+  align-items: flex-start;
+  padding: 40px 16px 60px;
+  font-family: Arial, Helvetica, sans-serif;
+}
+
+.page {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 28px;
+  width: 100%;
+}
+
+.page-title {
+  color: #e8e8f0;
+  font-size: 26px;
+  font-weight: 700;
+  letter-spacing: 6px;
+  text-transform: uppercase;
+  text-shadow: 0 2px 8px rgba(0, 0, 0, 0.6);
+}
+
+/* ── Game Container ─────────────────────────────────────────── */
+.game-container {
+  background: var(--panel-bg);
+  padding: 8px;
+
+  /* outer raised frame */
+  border: 3px solid;
+  border-color: var(--hi) var(--deep) var(--deep) var(--hi);
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.55);
+}
+
+/* ── Header ─────────────────────────────────────────────────── */
+.game-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 6px 8px;
+  margin-bottom: 8px;
+
+  /* inset sunken panel */
+  border: 2px solid;
+  border-color: var(--mid) var(--hi) var(--hi) var(--mid);
+}
+
+/* LCD Display (flag counter & timer) */
+.lcd-display {
+  background: var(--lcd-bg);
+  color: var(--lcd-fg);
+  font-family: "Courier New", Courier, monospace;
+  font-size: 26px;
+  font-weight: 900;
+  letter-spacing: 3px;
+  padding: 3px 10px;
+  min-width: 64px;
+  text-align: center;
+  user-select: none;
+
+  border: 2px solid;
+  border-color: var(--mid) var(--hi) var(--hi) var(--mid);
+}
+
+/* New‑Game Button */
+.new-game-btn {
+  font-size: 22px;
+  width: 42px;
+  height: 42px;
+  padding: 0;
+  line-height: 1;
+  cursor: pointer;
+  background: var(--panel-bg);
+
+  /* raised 3‑D button */
+  border: 3px solid;
+  border-color: var(--hi) var(--mid) var(--mid) var(--hi);
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: border-color 0.05s;
+}
+
+.new-game-btn:active {
+  /* pressed state */
+  border-color: var(--mid) var(--hi) var(--hi) var(--mid);
+  padding-top: 2px;
+  padding-left: 2px;
+}
+
+/* ── Board ──────────────────────────────────────────────────── */
+.game-board {
+  display: grid;
+  grid-template-columns: repeat(9, var(--cell-size));
+
+  /* inset sunken frame */
+  border: 3px solid;
+  border-color: var(--mid) var(--hi) var(--hi) var(--mid);
+}
+
+/* ── Base Cell ──────────────────────────────────────────────── */
+.cell {
+  width: var(--cell-size);
+  height: var(--cell-size);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: var(--cell-font);
+  font-weight: 700;
+  cursor: pointer;
+  user-select: none;
+  position: relative; /* needed for ::after overlay */
+  overflow: hidden;
+}
+
+/* ─────────────────────────────────────────────────────────────
+   CELL STATES
+   ───────────────────────────────────────────────────────────── */
+
+/* 1. Закрита клітинка — raised 3‑D */
+.cell.closed {
+  background: var(--panel-bg);
+  border: 2px solid;
+  border-color: var(--hi) var(--mid) var(--mid) var(--hi);
+}
+
+/* 2. Відкрита клітинка — flat / sunken */
+.cell.open {
+  background: #b8b8b8;
+  border: 1px solid var(--mid);
+}
+
+/* 3. Числа (відкрита клітинка з підказкою) */
+.cell.n1 {
+  color: var(--c1);
+}
+.cell.n2 {
+  color: var(--c2);
+}
+.cell.n3 {
+  color: var(--c3);
+}
+.cell.n4 {
+  color: var(--c4);
+}
+.cell.n5 {
+  color: var(--c5);
+}
+.cell.n6 {
+  color: var(--c6);
+}
+.cell.n7 {
+  color: var(--c7);
+}
+.cell.n8 {
+  color: var(--c8);
+}
+
+/* 4. Клітинка з прапорцем (закрита, міна під нею) */
+.cell.closed.flagged::before {
+  content: "🚩";
+  font-size: var(--cell-icon);
+  line-height: 1;
+}
+
+/* 5. Клітинка з прапорцем (закрита, міни немає — хибний прапорець)
+      Показується при закінченні гри: прапорець + червоний хрест */
+.cell.closed.flagged.no-mine::before {
+  content: "🚩";
+  font-size: var(--cell-icon);
+  line-height: 1;
+  opacity: 0.8;
+}
+
+.cell.closed.flagged.no-mine::after {
+  content: "✕";
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  color: #e00000;
+  font-size: 24px;
+  font-weight: 900;
+  line-height: 1;
+  pointer-events: none;
+}
+
+/* 6. Клітинка з міною (звичайна — відкрита при програші) */
+.cell.mine {
+  background: #b8b8b8;
+  border: 1px solid var(--mid);
+  cursor: default;
+}
+
+.cell.mine::before {
+  content: "💣";
+  font-size: var(--cell-icon);
+  line-height: 1;
+}
+
+/* 7. Клітинка з міною (та, на яку натиснув гравець) — червоний фон */
+.cell.mine.triggered {
+  background: #e83030;
+  border: 1px solid #a00000;
+}
+
+/* ─────────────────────────────────────────────────────────────
+   HOVER / ACTIVE стани (для закритих клітинок)
+   ───────────────────────────────────────────────────────────── */
+.cell.closed:hover {
+  background: #cacaca;
+}
+
+.cell.closed:active {
+  background: #b8b8b8;
+  border: 1px solid var(--mid);
+}
+
+/* ── Legend ─────────────────────────────────────────────────── */
+.legend {
+  background: #1c1c3a;
+  border: 1px solid #2e2e5e;
+  border-radius: 10px;
+  padding: 20px 24px;
+  max-width: 580px;
+  width: 100%;
+}
+
+.legend-title {
+  color: #c8cce8;
+  font-size: 13px;
+  font-weight: 700;
+  letter-spacing: 3px;
+  text-transform: uppercase;
+  text-align: center;
+  margin-bottom: 18px;
+}
+
+.legend-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(110px, 1fr));
+  gap: 14px 10px;
+}
+
+.legend-item {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+}
+
+.legend-item span {
+  color: #8890b8;
+  font-size: 11px;
+  text-align: center;
+  line-height: 1.4;
+}
+
+/* ── Responsive ─────────────────────────────────────────────── */
+@media (max-width: 380px) {
+  :root {
+    --cell-size: 28px;
+    --cell-font: 12px;
+    --cell-icon: 14px;
+  }
+
+  .page-title {
+    font-size: 19px;
+    letter-spacing: 4px;
+  }
+
+  .lcd-display {
+    font-size: 20px;
+    min-width: 52px;
+    padding: 2px 6px;
+  }
+
+  .new-game-btn {
+    font-size: 18px;
+    width: 36px;
+    height: 36px;
+  }
+
+  .legend {
+    padding: 14px 14px;
+  }
+
+  .legend-grid {
+    grid-template-columns: repeat(auto-fill, minmax(90px, 1fr));
+  }
+}
+
+@media (max-width: 320px) {
+  :root {
+    --cell-size: 24px;
+    --cell-font: 10px;
+    --cell-icon: 12px;
+  }
+}

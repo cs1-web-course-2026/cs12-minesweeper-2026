@@ -1,0 +1,190 @@
+<!doctype html>
+<html lang="uk">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Minesweeper</title>
+    <link rel="stylesheet" href="styles.css" />
+  </head>
+  <body>
+    <div class="page">
+      <h1 class="page-title">Minesweeper</h1>
+
+      <div class="game-container">
+        <!-- ═══ HEADER ═══ -->
+        <header class="game-header">
+          <div class="lcd-display" title="Залишилось прапорців">
+            <span class="lcd-value" id="flag-count">005</span>
+          </div>
+
+          <button class="new-game-btn" id="new-game-btn" title="Нова гра">
+            &#x1F635;
+            <!-- 😵 game-over face -->
+          </button>
+
+          <div class="lcd-display" title="Час (секунди)">
+            <span class="lcd-value" id="timer">042</span>
+          </div>
+        </header>
+
+        <!-- ═══ BOARD  (9×9, стан «кінець гри») ═══
+           Позначення при побудові:
+             O  = відкрита порожня
+             1‑3 = відкрита з числом
+             C  = закрита
+             F  = прапорець на міні (правильний)
+             X  = прапорець НЕ на міні (хибний)
+             M  = міна (звичайна, відкрита при програші)
+             T  = міна, на яку натиснув гравець (тригерна)
+      -->
+        <div class="game-board" role="grid" aria-label="Ігрове поле">
+          <!-- Row 0 -->
+          <div class="cell open"></div>
+          <div class="cell open"></div>
+          <div class="cell open"></div>
+          <div class="cell open"></div>
+          <div class="cell open"></div>
+          <div class="cell open"></div>
+          <div class="cell open n1">1</div>
+          <div class="cell open n1">1</div>
+          <div class="cell open n1">1</div>
+
+          <!-- Row 1 -->
+          <div class="cell open"></div>
+          <div class="cell open"></div>
+          <div class="cell open"></div>
+          <div class="cell open"></div>
+          <div class="cell open"></div>
+          <div class="cell open n1">1</div>
+          <div class="cell open n2">2</div>
+          <div class="cell open n2">2</div>
+          <div class="cell closed flagged" aria-label="Прапорець (міна)"></div>
+
+          <!-- Row 2 -->
+          <div class="cell open"></div>
+          <div class="cell open n1">1</div>
+          <div class="cell open n1">1</div>
+          <div class="cell open"></div>
+          <div class="cell open"></div>
+          <div class="cell open n1">1</div>
+          <div class="cell open n3">3</div>
+          <div class="cell mine" aria-label="Міна"></div>
+          <div class="cell closed"></div>
+
+          <!-- Row 3 -->
+          <div class="cell open"></div>
+          <div class="cell open n1">1</div>
+          <div
+            class="cell closed flagged no-mine"
+            aria-label="Хибний прапорець"
+          ></div>
+          <div class="cell open n1">1</div>
+          <div class="cell open"></div>
+          <div class="cell open n1">1</div>
+          <div class="cell mine triggered" aria-label="Підірвана міна"></div>
+          <div class="cell open n3">3</div>
+          <div class="cell open n1">1</div>
+
+          <!-- Row 4 -->
+          <div class="cell open"></div>
+          <div class="cell open n1">1</div>
+          <div class="cell open n1">1</div>
+          <div class="cell open n2">2</div>
+          <div class="cell open n1">1</div>
+          <div class="cell open n2">2</div>
+          <div class="cell mine" aria-label="Міна"></div>
+          <div class="cell mine" aria-label="Міна"></div>
+          <div class="cell open n1">1</div>
+
+          <!-- Row 5 -->
+          <div class="cell open"></div>
+          <div class="cell open"></div>
+          <div class="cell open"></div>
+          <div class="cell open n1">1</div>
+          <div class="cell open n2">2</div>
+          <div class="cell open n3">3</div>
+          <div class="cell open n3">3</div>
+          <div class="cell open n2">2</div>
+          <div class="cell open"></div>
+
+          <!-- Row 6 -->
+          <div class="cell open"></div>
+          <div class="cell open"></div>
+          <div class="cell open"></div>
+          <div class="cell open"></div>
+          <div class="cell open n1">1</div>
+          <div class="cell open n2">2</div>
+          <div class="cell mine" aria-label="Міна"></div>
+          <div class="cell open n2">2</div>
+          <div class="cell open"></div>
+
+          <!-- Row 7 -->
+          <div class="cell open n1">1</div>
+          <div class="cell open n1">1</div>
+          <div class="cell open"></div>
+          <div class="cell open"></div>
+          <div class="cell open n1">1</div>
+          <div class="cell open n2">2</div>
+          <div class="cell mine" aria-label="Міна"></div>
+          <div class="cell open n2">2</div>
+          <div class="cell open"></div>
+
+          <!-- Row 8 -->
+          <div class="cell closed"></div>
+          <div class="cell closed flagged" aria-label="Прапорець (міна)"></div>
+          <div class="cell open n1">1</div>
+          <div class="cell open"></div>
+          <div class="cell open n1">1</div>
+          <div class="cell mine" aria-label="Міна"></div>
+          <div class="cell mine" aria-label="Міна"></div>
+          <div class="cell mine" aria-label="Міна"></div>
+          <div class="cell open n1">1</div>
+        </div>
+        <!-- .game-board -->
+      </div>
+      <!-- .game-container -->
+
+      <!-- ═══ LEGEND ═══ -->
+      <section class="legend" aria-label="Стани клітинок">
+        <h2 class="legend-title">Стани клітинок</h2>
+        <div class="legend-grid">
+          <div class="legend-item">
+            <div class="cell closed"></div>
+            <span>Закрита</span>
+          </div>
+
+          <div class="legend-item">
+            <div class="cell open"></div>
+            <span>Відкрита порожня</span>
+          </div>
+
+          <div class="legend-item">
+            <div class="cell open n3">3</div>
+            <span>Відкрита з числом</span>
+          </div>
+
+          <div class="legend-item">
+            <div class="cell closed flagged"></div>
+            <span>Прапорець (міна)</span>
+          </div>
+
+          <div class="legend-item">
+            <div class="cell closed flagged no-mine"></div>
+            <span>Прапорець (не міна)</span>
+          </div>
+
+          <div class="legend-item">
+            <div class="cell mine"></div>
+            <span>Міна</span>
+          </div>
+
+          <div class="legend-item">
+            <div class="cell mine triggered"></div>
+            <span>Підірвана міна</span>
+          </div>
+        </div>
+      </section>
+    </div>
+    <!-- .page -->
+  </body>
+</html>
