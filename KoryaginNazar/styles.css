@@ -120,6 +120,20 @@ body {
 	font-size: 20px;
 }
 
+.flag-red {
+	background: #ff3b30;
+}
+
+.flag-red::before {
+	content: "🚩";
+	font-size: 20px;
+}
+
+.bomb::before {
+	content: "💣";
+	font-size: 20px;
+}
+
 .exploded-bomb {
 	background: #ff3b30;
 }
