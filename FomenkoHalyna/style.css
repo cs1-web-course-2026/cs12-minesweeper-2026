@@ -30,10 +30,26 @@ body {
     gap: 12px;
 }
 
-.menu-bar span:hover {
+.menu-bar-button {
+    background: none;
+    border: none;
+    padding: 3px 8px;
+    margin: 0;
+    font: inherit;
+    cursor: pointer;
+    color: black;
+    display: inline-flex;
+    align-items: center;
+}
+
+.menu-bar-button:hover {
     background-color: #000080;
     color: white;
-    cursor: default;
+}
+
+.menu-bar-button:focus-visible {
+    outline: 1px dotted #000;
+    outline-offset: -4px;
 }
 
 .game-box {
