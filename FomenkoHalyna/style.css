@@ -117,7 +117,7 @@ body {
 /* Відкрита клітинка */
 .cell.open {
     border: 1px solid var(--ms-dark);
-    background-color: #bdbdbd;
+    background-color: var(--ms-bg);
     cursor: default;
 }
 
