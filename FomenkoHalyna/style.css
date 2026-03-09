@@ -107,6 +107,8 @@ body {
     display: grid;
     grid-template-columns: repeat(10, var(--cell-size));
     border: 3px inset var(--ms-light);
+    max-width: 100%; /* Захист від переповнення */
+    overflow: auto;
 }
 
 /* Базова клітинка */
