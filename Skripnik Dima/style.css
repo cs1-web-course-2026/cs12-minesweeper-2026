@@ -1,0 +1,126 @@
+* {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+}
+
+body {
+    display: flex;
+    justify-content: center;
+    background-color: #2b2b2b;
+    padding-top: 50px;
+}
+
+.window {
+    background-color: #c0c0c0;
+    padding: 10px;
+    border-top: 3px solid #fff;
+    border-left: 3px solid #fff;
+    border-bottom: 3px solid #808080;
+    border-right: 3px solid #808080;
+    display: inline-block;
+    font-family: Arial, sans-serif;
+}
+
+.header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 5px 10px;
+    background-color: #c0c0c0;
+    border-top: 2px solid #808080;
+    border-left: 2px solid #808080;
+    border-bottom: 2px solid #fff;
+    border-right: 2px solid #fff;
+    margin-bottom: 10px;
+}
+
+.lcd {
+    background-color: black;
+    color: red;
+    font-family: 'Courier New', Courier, monospace;
+    font-size: 24px;
+    font-weight: bold;
+    padding: 2px 5px;
+    border: 1px solid #808080;
+    width: 50px;
+    text-align: center;
+}
+
+.smiley-btn {
+    width: 32px;
+    height: 32px;
+    font-size: 18px;
+    background-color: #c0c0c0;
+    border-top: 2px solid #fff;
+    border-left: 2px solid #fff;
+    border-bottom: 2px solid #808080;
+    border-right: 2px solid #808080;
+    cursor: pointer;
+    text-decoration: none;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    color: black;
+}
+.smiley-btn:active {
+    border-top: 2px solid #808080;
+    border-left: 2px solid #808080;
+    border-bottom: 2px solid #fff;
+    border-right: 2px solid #fff;
+}
+
+.board-container {
+    border-top: 3px solid #808080;
+    border-left: 3px solid #808080;
+    border-bottom: 3px solid #fff;
+    border-right: 3px solid #fff;
+}
+
+.board {
+    display: grid;
+    grid-template-columns: repeat(9, 24px);
+    grid-template-rows: repeat(9, 24px);
+    background-color: #808080;
+}
+
+.board .cell {
+    width: 24px;
+    height: 24px;
+    background-color: #c0c0c0;
+    border-top: 2px solid #fff;
+    border-left: 2px solid #fff;
+    border-bottom: 2px solid #808080;
+    border-right: 2px solid #808080;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    font-weight: bold;
+    font-size: 14px;
+    cursor: pointer;
+    user-select: none;
+    padding: 0;
+}
+
+.board .cell:active {
+    border: 1px solid #808080;
+}
+
+.board .cell span {
+    display: none;
+}
+
+.board .cell:focus span,
+.board .cell:active span {
+    display: block;
+}
+
+.board .cell.mine:focus,
+.board .cell.mine:active {
+    background-color: red;
+}
+
+
+.val-1 { color: blue; }
+.val-2 { color: green; }
+.val-3 { color: red; }
