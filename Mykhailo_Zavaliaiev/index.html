@@ -1,0 +1,91 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Minesweeper UI</title>
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+  <div class="page">
+    <header class="hud">
+      <div class="stat">
+        <span class="label">Time</span>
+        <span class="value" aria-live="polite">000</span>
+      </div>
+      <button class="reset" type="button" aria-label="Start new game">🙂</button>
+      <div class="stat">
+        <span class="label">Flags</span>
+        <span class="value" aria-live="polite">010</span>
+      </div>
+    </header>
+
+    <main class="play-area">
+      <section class="board" style="--cols:8" aria-label="Minesweeper board eight by eight">
+        <button class="cell flagged" aria-label="Flag"></button>
+        <button class="cell closed" aria-label="Closed cell"></button>
+        <button class="cell open number-1" aria-label="Open cell, one mine nearby">1</button>
+        <button class="cell open number-2" aria-label="Open cell, two mines nearby">2</button>
+        <button class="cell open number-3" aria-label="Open cell, three mines nearby">3</button>
+        <button class="cell open number-4" aria-label="Open cell, four mines nearby">4</button>
+        <button class="cell open number-5" aria-label="Open cell, five mines nearby">5</button>
+        <button class="cell mine open" aria-label="Mine"></button>
+
+        <button class="cell open" aria-label="Open empty cell"></button>
+        <button class="cell closed" aria-label="Closed cell"></button>
+        <button class="cell open number-6" aria-label="Open cell, six mines nearby">6</button>
+        <button class="cell open number-7" aria-label="Open cell, seven mines nearby">7</button>
+        <button class="cell open number-8" aria-label="Open cell, eight mines nearby">8</button>
+        <button class="cell flagged mine" aria-label="Flag on a mine"></button>
+        <button class="cell closed" aria-label="Closed cell"></button>
+        <button class="cell mine open exploded" aria-label="Exploded mine"></button>
+
+        <button class="cell closed" aria-label="Closed cell"></button>
+        <button class="cell closed" aria-label="Closed cell"></button>
+        <button class="cell closed" aria-label="Closed cell"></button>
+        <button class="cell closed" aria-label="Closed cell"></button>
+        <button class="cell closed" aria-label="Closed cell"></button>
+        <button class="cell closed" aria-label="Closed cell"></button>
+        <button class="cell closed" aria-label="Closed cell"></button>
+        <button class="cell closed" aria-label="Closed cell"></button>
+
+        <button class="cell closed" aria-label="Closed cell"></button>
+        <button class="cell closed" aria-label="Closed cell"></button>
+        <button class="cell closed" aria-label="Closed cell"></button>
+        <button class="cell closed" aria-label="Closed cell"></button>
+        <button class="cell closed" aria-label="Closed cell"></button>
+        <button class="cell closed" aria-label="Closed cell"></button>
+        <button class="cell closed" aria-label="Closed cell"></button>
+        <button class="cell closed" aria-label="Closed cell"></button>
+
+        <button class="cell closed" aria-label="Closed cell"></button>
+        <button class="cell closed" aria-label="Closed cell"></button>
+        <button class="cell closed" aria-label="Closed cell"></button>
+        <button class="cell closed" aria-label="Closed cell"></button>
+        <button class="cell closed" aria-label="Closed cell"></button>
+        <button class="cell closed" aria-label="Closed cell"></button>
+        <button class="cell closed" aria-label="Closed cell"></button>
+        <button class="cell closed" aria-label="Closed cell"></button>
+
+        <button class="cell closed" aria-label="Closed cell"></button>
+        <button class="cell closed" aria-label="Closed cell"></button>
+        <button class="cell closed" aria-label="Closed cell"></button>
+        <button class="cell closed" aria-label="Closed cell"></button>
+        <button class="cell closed" aria-label="Closed cell"></button>
+        <button class="cell closed" aria-label="Closed cell"></button>
+        <button class="cell closed" aria-label="Closed cell"></button>
+        <button class="cell closed" aria-label="Closed cell"></button>
+
+        <button class="cell closed" aria-label="Closed cell"></button>
+        <button class="cell closed" aria-label="Closed cell"></button>
+        <button class="cell closed" aria-label="Closed cell"></button>
+        <button class="cell closed" aria-label="Closed cell"></button>
+        <button class="cell closed" aria-label="Closed cell"></button>
+        <button class="cell closed" aria-label="Closed cell"></button>
+        <button class="cell closed" aria-label="Closed cell"></button>
+        <button class="cell closed" aria-label="Closed cell"></button>
+      </section>
+    </main>
+  </div>
+</body>
+</html>
