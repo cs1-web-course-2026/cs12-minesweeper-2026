@@ -274,9 +274,32 @@ When reviewing a pull request, verify all of the following before approving:
    - Check the list of deleted files: if all deletions share the same top-level folder and
      that folder is **not** the PR author's own folder, flag it.
    - Request changes with a comment explaining which directory was unintentionally deleted and asking the author to restore it before the PR can be merged suggesting the way how to do that.
-4. **lab1 — No JavaScript allowed.** If the PR title **or** the head branch name contains
-   `lab1`, check that no `.js` files are added or modified and that no `<script>` tags appear
-   in any HTML file.
-   - If any JavaScript is found, request changes with a comment explaining that lab1 must be
-     completed using HTML and CSS only, and that all `.js` files and `<script>` tags must be
-     removed before the PR can be merged.
+4. **lab1 — HTML & CSS only.** If the PR title **or** the head branch name contains `lab1`,
+   check that no `.js` files are added or modified and that no `<script>` tags appear in any
+   HTML file.
+   - If any JavaScript is found, this is a **critical** violation — request changes with a
+     comment explaining that lab1 must be completed using HTML and CSS only, and that all
+     `.js` files and `<script>` tags must be removed before the PR can be merged.
+5. **lab2 — Pure JavaScript logic (no DOM).** If the PR title **or** the head branch name
+   contains `lab2`, check that the `.js` file contains only game logic — board creation, mine
+   placement, adjacency counting, reveal/flag state transitions, win/loss detection —
+   implemented as pure functions operating on plain data structures.
+   - The JavaScript must **not** contain DOM API calls such as `document.querySelector`,
+     `document.getElementById`, `addEventListener`, `innerHTML`, `createElement`,
+     `classList`, etc.
+   - No `.html` file should be added or modified beyond what already existed in lab1.
+   - **If DOM interactions are present:** this is not a blocking violation — the student may
+     have combined lab2 and lab3. Leave a medium-severity comment noting the deviation and
+     ask the student to rename the PR title to `lab2-3: <description>`. Do **not** request
+     changes solely because of DOM interactions if the logic itself is correct.
+6. **lab3 — Full DOM integration (Minesweeper complete).** If the PR title **or** the head
+   branch name contains `lab3` or `lab2-3`, verify that the submission wires together the
+   pure logic from lab2 and the HTML structure from lab1 to produce a playable game.
+   - The board must be rendered dynamically from JavaScript (not hard-coded in HTML).
+   - Left-click must reveal a cell; right-click (or equivalent) must toggle a flag.
+   - The game must detect and display a win or loss state.
+   - A mine count / remaining flags indicator must be updated in the UI.
+   - If lab2 logic is duplicated inline (e.g. mine placement written directly inside event
+     handlers) rather than extracted into reusable functions, flag this as a medium-severity
+     issue and suggest extracting it.
+   - Any JavaScript found in lab1 files (carry-over) is still a **high**-severity issue.
