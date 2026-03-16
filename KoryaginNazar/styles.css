@@ -65,13 +65,13 @@ body {
   box-shadow: inset -2px -2px 0 #ffffff, inset 2px 2px 0 #8f8f8f;
 }
 
-.columns {
+.board-row {
   display: flex;
 }
 
 .columns > button {
-  width: 34px;
-  height: 34px;
+  width: 40px;
+  height: 40px;
   font-size: 24px;
   font-weight: 700;
   display: flex;
