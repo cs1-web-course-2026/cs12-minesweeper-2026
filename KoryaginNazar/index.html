@@ -32,72 +32,72 @@
             </div>
         </div>
         <div class="playing-field">
-            <div class="board-row">
-                <button class="open" aria-label="Revealed empty cell"></button>
-                <button class="open" aria-label="Revealed empty cell"></button>
-                <button class="open" aria-label="Revealed empty cell"></button>
-                <button class="open" aria-label="Revealed empty cell"></button>
-                <button class="open" aria-label="Revealed empty cell"></button>
-                <button class="open n1" aria-label="Revealed cell, 1 adjacent mine"></button>
-                <button class="open exploded-bomb" aria-label="Revealed mine, exploded"></button>
-                <button class="closed" aria-label="Hidden cell"></button>
-                <button class="closed" aria-label="Hidden cell"></button>
-                <button class="closed bomb" aria-label="Hidden cell"></button>
-            </div>
-            <div class="board-row">
-                <button class="open" aria-label="Revealed empty cell"></button>
-                <button class="open n1" aria-label="Revealed cell, 1 adjacent mine"></button>
-                <button class="open n1" aria-label="Revealed cell, 1 adjacent mine"></button>
-                <button class="open n1" aria-label="Revealed cell, 1 adjacent mine"></button>
-                <button class="open" aria-label="Revealed empty cell"></button>
-                <button class="open n1" aria-label="Revealed cell, 1 adjacent mine"></button>
-                <button class="closed" aria-label="Hidden cell"></button>
-                <button class="closed" aria-label="Hidden cell"></button>
-                <button class="closed" aria-label="Hidden cell"></button>
-                <button class="closed" aria-label="Hidden cell"></button>
-            </div>
-            <div class="board-row">
-                <button class="open" aria-label="Revealed empty cell"></button>
-                <button class="open n1" aria-label="Revealed cell, 1 adjacent mine"></button>
-                <button class="closed flag" aria-label="Hidden flagged cell"></button>
-                <button class="open n1" aria-label="Revealed cell, 1 adjacent mine"></button>
-                <button class="open n1" aria-label="Revealed cell, 1 adjacent mine"></button>
-                <button class="open n2" aria-label="Revealed cell, 2 adjacent mines"></button>
-                <button class="closed" aria-label="Hidden cell"></button>
-                <button class="closed bomb" aria-label="Hidden cell"></button>
-                <button class="closed" aria-label="Hidden cell"></button>
-                <button class="closed" aria-label="Hidden cell"></button>
-            </div>
-            <div class="board-row">
-                <button class="open" aria-label="Revealed empty cell"></button>
-                <button class="open n1" aria-label="Revealed cell, 1 adjacent mine"></button>
-                <button class="open n1" aria-label="Revealed cell, 1 adjacent mine"></button>
-                <button class="open n1" aria-label="Revealed cell, 1 adjacent mine"></button>
-                <button class="open n2" aria-label="Revealed cell, 2 adjacent mines"></button>
-                <button class="closed" aria-label="Hidden cell"></button>
-                <button class="closed" aria-label="Hidden cell"></button>
-                <button class="closed bomb" aria-label="Hidden cell"></button>
-                <button class="closed" aria-label="Hidden cell"></button>
-                <button class="closed bomb" aria-label="Hidden cell"></button>
-            </div>
-            <div class="board-row">
+            <div class="columns">
+                <button class="open"></button>
+                <button class="open"></button>
+                <button class="open"></button>
+                <button class="open"></button>
                 <button class="open"></button>
                 <button class="open n1"></button>
-                <button class="open n2"></button>
-                <button class="open n2"></button>
-                <button class="open n4"></button>
+                <button class="open exploded-bomb"></button>
+                <button class="closed"></button>
+                <button class="closed"></button>
                 <button class="closed bomb"></button>
+            </div>
+            <div class="columns">
+                <button class="open"></button>
+                <button class="open n1"></button>
+                <button class="open n1"></button>
+                <button class="open n1"></button>
+                <button class="open"></button>
+                <button class="open n1"></button>
                 <button class="closed"></button>
                 <button class="closed"></button>
                 <button class="closed"></button>
                 <button class="closed"></button>
             </div>
-            <div class="board-row">
+            <div class="columns">
                 <button class="open"></button>
                 <button class="open n1"></button>
                 <button class="closed flag"></button>
+                <button class="open n1"></button>
+                <button class="open n1"></button>
+                <button class="open n2"></button>
+                <button class="closed"></button>
+                <button class="closed bomb"></button>
+                <button class="closed"></button>
+                <button class="closed"></button>
+            </div>
+            <div class="columns">
+                <button class="open"></button>
+                <button class="open n1"></button>
+                <button class="open n1"></button>
+                <button class="open n1"></button>
+                <button class="open n2"></button>
+                <button class="closed"></button>
+                <button class="closed"></button>
+                <button class="closed bomb"></button>
+                <button class="closed"></button>
+                <button class="closed bomb"></button>
+            </div>
+            <div class="board-row">
+                <button class="open"></button>
+                <button class="open adjacent-mine-count-1"></button>
+                <button class="open adjacent-mine-count-2"></button>
+                <button class="open adjacent-mine-count-2"></button>
+                <button class="open adjacent-mine-count-4"></button>
+                <button class="closed bomb"></button>
+                <button class="closed"></button>
+                <button class="closed"></button>
+                <button class="closed"></button>
+                <button class="closed"></button>
+            </div>
+            <div class="board-row">
+                <button class="open"></button>
+                <button class="open adjacent-mine-count-1"></button>
                 <button class="closed flag"></button>
-                <button class="open n3"></button>
+                <button class="closed flag"></button>
+                <button class="open adjacent-mine-count-3"></button>
                 <button class="closed"></button>
                 <button class="closed bomb"></button>
                 <button class="closed"></button>
@@ -106,9 +106,9 @@
             </div>
             <div class="board-row">
                 <button class="open"></button>
-                <button class="open n1"></button>
-                <button class="open n2"></button>
-                <button class="open n2"></button>
+                <button class="open adjacent-mine-count-1"></button>
+                <button class="open adjacent-mine-count-2"></button>
+                <button class="open adjacent-mine-count-2"></button>
                 <button class="closed"></button>
                 <button class="closed bomb"></button>
                 <button class="closed"></button>
@@ -119,8 +119,8 @@
             <div class="board-row">
                 <button class="open"></button>
                 <button class="open"></button>
-                <button class="open n1"></button>
-                <button class="open n1"></button>
+                <button class="open adjacent-mine-count-1"></button>
+                <button class="open adjacent-mine-count-1"></button>
                 <button class="closed"></button>
                 <button class="closed"></button>
                 <button class="closed bomb"></button>
@@ -131,7 +131,7 @@
             <div class="board-row">
                 <button class="open"></button>
                 <button class="open"></button>
-                <button class="open n1"></button>
+                <button class="open adjacent-mine-count-1"></button>
                 <button class="closed flag-red"></button>
                 <button class="closed bomb"></button>
                 <button class="closed"></button>
