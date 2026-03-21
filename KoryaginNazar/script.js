@@ -251,23 +251,20 @@ function openCell(row, col, field = gameField, currentGameState = gameState) {
 	}
 
 	let isAnyCellOpened = false;
-	const cellsToProcess = [];
 
-	cellsToProcess.push({ row, col });
-
-	while (cellsToProcess.length > 0 && currentGameState.status === GAME_STATUS.PLAYING) {
-		const nextCellCoordinates = cellsToProcess.pop();
-		const currentRow = nextCellCoordinates.row;
-		const currentCol = nextCellCoordinates.col;
+	function openCellRecursive(currentRow, currentCol) {
+		if (currentGameState.status !== GAME_STATUS.PLAYING) {
+			return;
+		}
 
 		if (!isInBounds(field, currentRow, currentCol)) {
-			continue;
+			return;
 		}
 
 		const currentCell = field[currentRow][currentCol];
 
 		if (currentCell.state === CELL_STATE.OPEN || currentCell.state === CELL_STATE.FLAGGED) {
-			continue;
+			return;
 		}
 
 		currentCell.state = CELL_STATE.OPEN;
@@ -278,31 +275,19 @@ function openCell(row, col, field = gameField, currentGameState = gameState) {
 			revealAllMines(field);
 			stopGameTimer(currentGameState);
 
-			break;
+			return;
 		}
 
-		if (currentCell.neighborMines === 0) {
-			for (const [directionalRow, directionalCol] of NEIGHBOUR_DIRECTIONS) {
-				const neighbourRow = currentRow + directionalRow;
-				const neighbourCol = currentCol + directionalCol;
+		if (currentCell.neighborMines !== 0) {
+			return;
+		}
 
-				if (!isInBounds(field, neighbourRow, neighbourCol)) {
-					continue;
-				}
-
-				const neighbourCell = field[neighbourRow][neighbourCol];
-
-				if (neighbourCell.state === CELL_STATE.OPEN || neighbourCell.state === CELL_STATE.FLAGGED) {
-					continue;
-				}
-
-				cellsToProcess.push({
-					row: neighbourRow,
-					col: neighbourCol,
-				});
-			}
+		for (const [directionalRow, directionalCol] of NEIGHBOUR_DIRECTIONS) {
+			openCellRecursive(currentRow + directionalRow, currentCol + directionalCol);
 		}
 	}
+
+	openCellRecursive(row, col);
 
 	if (isAnyCellOpened && currentGameState.status === GAME_STATUS.PLAYING) {
 		if (checkWinCondition(field, currentGameState.minesCount)) {
