@@ -7,14 +7,15 @@ const CELL_TYPE = {
 
 const CELL_STATE = {
   CLOSED: 'closed',
-  OPENED: 'opened',
+	OPEN: 'open',
   FLAGGED: 'flagged',
 };
 
 const GAME_STATUS = {
-  PROCESS: 'process',
-  WIN: 'win',
-  LOSE: 'lose',
+	IDLE: 'idle',
+	PLAYING: 'playing',
+	WON: 'won',
+	LOST: 'lost',
 };
 
 const DEFAULT_GAME_CONFIGURATION = {
@@ -48,7 +49,7 @@ function createInitialGameState(rows, cols, minesCount) {
     rows,
     cols,
     minesCount,
-    status: GAME_STATUS.PROCESS,
+		status: GAME_STATUS.PLAYING,
     gameTime: 0,
     timerId: null,
   };
@@ -86,11 +87,17 @@ function createEmptyField(rows, cols) {
 
 
 function isInBounds(field, row, col) {
-	if (!Array.isArray(field) || field.length === 0 || !Array.isArray(field[0])) {
+	if (!Array.isArray(field) || field.length === 0) {
 		return false;
 	}
+
 	const isCorrectRow = row >= 0 && row < field.length;
-	const isCorrectCol = col >= 0 && col < field[0].length;
+
+	if (!isCorrectRow || !Array.isArray(field[row])) {
+		return false;
+	}
+
+	const isCorrectCol = col >= 0 && col < field[row].length;
 
 	return isCorrectRow && isCorrectCol;
 }
@@ -174,7 +181,7 @@ function revealAllMines(field) {
 				continue;
 			}
 
-			currentCell.state = CELL_STATE.OPENED;
+			currentCell.state = CELL_STATE.OPEN;
 		}
 	}
 
@@ -188,7 +195,7 @@ function checkWinCondition(field, minesCount) {
 
 	for (let row = 0; row < field.length; row += 1) {
 		for (let col = 0; col < field[row].length; col += 1) {
-			if (field[row][col].state === CELL_STATE.OPENED) {
+			if (field[row][col].state === CELL_STATE.OPEN) {
 				openedCellsCount += 1;
 			}
 		}
@@ -216,7 +223,7 @@ function startGameTimer(currentGameState = gameState) {
 	}
 
 	currentGameState.timerId = setInterval(() => {
-		if (currentGameState.status !== GAME_STATUS.PROCESS) {
+		if (currentGameState.status !== GAME_STATUS.PLAYING) {
 			return;
 		}
 
@@ -226,7 +233,7 @@ function startGameTimer(currentGameState = gameState) {
 
 
 function openCell(row, col, field = gameField, currentGameState = gameState) {
-	if (currentGameState.status !== GAME_STATUS.PROCESS) {
+	if (currentGameState.status !== GAME_STATUS.PLAYING) {
 		return false;
 	}
 
@@ -236,7 +243,7 @@ function openCell(row, col, field = gameField, currentGameState = gameState) {
 
 	const selectedCell = field[row][col];
 
-	if (selectedCell.state === CELL_STATE.OPENED || selectedCell.state === CELL_STATE.FLAGGED) {
+	if (selectedCell.state === CELL_STATE.OPEN || selectedCell.state === CELL_STATE.FLAGGED) {
 		return false;
 	}
 
@@ -245,7 +252,7 @@ function openCell(row, col, field = gameField, currentGameState = gameState) {
 
 	cellsToProcess.push({ row, col });
 
-	while (cellsToProcess.length > 0 && currentGameState.status === GAME_STATUS.PROCESS) {
+	while (cellsToProcess.length > 0 && currentGameState.status === GAME_STATUS.PLAYING) {
 		const nextCellCoordinates = cellsToProcess.pop();
 		const currentRow = nextCellCoordinates.row;
 		const currentCol = nextCellCoordinates.col;
@@ -256,15 +263,15 @@ function openCell(row, col, field = gameField, currentGameState = gameState) {
 
 		const currentCell = field[currentRow][currentCol];
 
-		if (currentCell.state === CELL_STATE.OPENED || currentCell.state === CELL_STATE.FLAGGED) {
+		if (currentCell.state === CELL_STATE.OPEN || currentCell.state === CELL_STATE.FLAGGED) {
 			continue;
 		}
 
-		currentCell.state = CELL_STATE.OPENED;
+		currentCell.state = CELL_STATE.OPEN;
 		isAnyCellOpened = true;
 
 		if (currentCell.type === CELL_TYPE.MINE) {
-			currentGameState.status = GAME_STATUS.LOSE;
+			currentGameState.status = GAME_STATUS.LOST;
 			revealAllMines(field);
 			stopGameTimer(currentGameState);
 
@@ -282,7 +289,7 @@ function openCell(row, col, field = gameField, currentGameState = gameState) {
 
 				const neighbourCell = field[neighbourRow][neighbourCol];
 
-				if (neighbourCell.state === CELL_STATE.OPENED || neighbourCell.state === CELL_STATE.FLAGGED) {
+				if (neighbourCell.state === CELL_STATE.OPEN || neighbourCell.state === CELL_STATE.FLAGGED) {
 					continue;
 				}
 
@@ -294,9 +301,9 @@ function openCell(row, col, field = gameField, currentGameState = gameState) {
 		}
 	}
 
-	if (isAnyCellOpened && currentGameState.status === GAME_STATUS.PROCESS) {
+	if (isAnyCellOpened && currentGameState.status === GAME_STATUS.PLAYING) {
 		if (checkWinCondition(field, currentGameState.minesCount)) {
-			currentGameState.status = GAME_STATUS.WIN;
+			currentGameState.status = GAME_STATUS.WON;
 			stopGameTimer(currentGameState);
 		}
 	}
@@ -306,7 +313,7 @@ function openCell(row, col, field = gameField, currentGameState = gameState) {
 
 
 function toggleFlag(row, col, field = gameField, currentGameState = gameState) {
-	if (currentGameState.status !== GAME_STATUS.PROCESS) {
+	if (currentGameState.status !== GAME_STATUS.PLAYING) {
 		return false;
 	}
 
@@ -316,7 +323,7 @@ function toggleFlag(row, col, field = gameField, currentGameState = gameState) {
 
 	const selectedCell = field[row][col];
 
-	if (selectedCell.state === CELL_STATE.OPENED) {
+	if (selectedCell.state === CELL_STATE.OPEN) {
 		return false;
 	}
 
