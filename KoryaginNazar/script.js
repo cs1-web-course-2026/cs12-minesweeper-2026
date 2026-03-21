@@ -87,6 +87,9 @@ function createEmptyField(rows, cols) {
 
 
 function isInBounds(field, row, col) {
+	if (!Array.isArray(field) || field.length === 0 || !Array.isArray(field[0])) {
+		return false;
+	}
 	if (!Array.isArray(field) || field.length === 0) {
 		return false;
 	}
