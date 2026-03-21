@@ -61,7 +61,7 @@ function createInitialGameState(rows, cols, minesCount) {
 function createEmptyCell() {
 	const emptyCell = {
 		type: CELL_TYPE.EMPTY,
-		neighbourMines: 0,
+		neighborMines: 0,
 		state: CELL_STATE.CLOSED,
 	};
 
@@ -88,9 +88,6 @@ function createEmptyField(rows, cols) {
 
 function isInBounds(field, row, col) {
 	if (!Array.isArray(field) || field.length === 0 || !Array.isArray(field[0])) {
-		return false;
-	}
-	if (!Array.isArray(field) || field.length === 0) {
 		return false;
 	}
 
@@ -369,6 +366,4 @@ const minesweeperApi = {
 	getGameField,
 };
 
-window.minesweeperApi = minesweeperApi;
-
-resetGame();
+export { minesweeperApi };
