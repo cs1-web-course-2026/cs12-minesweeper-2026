@@ -1,6 +1,6 @@
 'use strict';
 
-const CELL_TYPE = {
+const CELL_CONTENT = {
   EMPTY: 'empty',
   MINE: 'mine',
 };
@@ -61,7 +61,7 @@ function createInitialGameState(rows, cols, minesCount) {
 function createEmptyCell() {
   const emptyCell = {
     type: CELL_TYPE.EMPTY,
-    neighborMines: 0,
+    neighbourMines: 0,
     state: CELL_STATE.CLOSED,
   };
 
