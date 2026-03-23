@@ -12,20 +12,20 @@ single-letter names or cryptic abbreviations.
 
 ### Variable naming
 
-| Avoid | Use instead |
-|-------|-------------|
-| `r` | `row` |
-| `c` | `col` |
-| `nr` | `neighbourRow` |
-| `nc` | `neighbourCol` |
-| `dr` | `directionalRow` |
-| `dc` | `directionalCol` |
-| `i`, `j` (in grid loops) | `row`, `col` |
-| `n` | `count` or a domain-specific name |
-| `el` | `element` |
-| `btn` | `button` |
-| `val` | `value` |
-| `arr` | `array` or a domain-specific name (e.g. `cells`) |
+| Avoid                    | Use instead                                      |
+| ------------------------ | ------------------------------------------------ |
+| `r`                      | `row`                                            |
+| `c`                      | `col`                                            |
+| `nr`                     | `neighbourRow`                                   |
+| `nc`                     | `neighbourCol`                                   |
+| `dr`                     | `directionalRow`                                 |
+| `dc`                     | `directionalCol`                                 |
+| `i`, `j` (in grid loops) | `row`, `col`                                     |
+| `n`                      | `count` or a domain-specific name                |
+| `el`                     | `element`                                        |
+| `btn`                    | `button`                                         |
+| `val`                    | `value`                                          |
+| `arr`                    | `array` or a domain-specific name (e.g. `cells`) |
 
 ### Function naming
 
@@ -112,11 +112,15 @@ const CELL_STATE = {
 };
 
 const DIRECTIONS = [
-  [-1, -1], [-1, 0], [-1, 1],
-  [ 0, -1],          [ 0, 1],
-  [ 1, -1], [ 1, 0], [ 1, 1],
+  [-1, -1],
+  [-1, 0],
+  [-1, 1],
+  [0, -1],
+  [0, 1],
+  [1, -1],
+  [1, 0],
+  [1, 1],
 ];
-
 
 function countAdjacentMines(board, row, col) {
   let mineCount = 0;
@@ -134,7 +138,6 @@ function countAdjacentMines(board, row, col) {
 
   return mineCount;
 }
-
 
 function revealCell(board, row, col) {
   const cell = board[row][col];
@@ -166,3 +169,137 @@ function revealCell(board, row, col) {
 - **No magic numbers** — define numeric constants (e.g. `const DEFAULT_MINE_COUNT = 10`).
 - **Early returns** — use guard clauses to reduce nesting instead of deeply nested `if/else`.
 - **Consistent style** — apply all rules above to every file in the project, not just new code.
+
+---
+
+## Repository Access and Forking
+
+Students must have **direct write access** to this repository to push branches and open pull
+requests. Do **not** fork the repository — pull requests from forks cannot be merged into the
+main workflow.
+
+### If you see a "You must fork this repository" message
+
+This means your GitHub account has not been granted access yet. To get access:
+
+1. Find the Google Sheets table for your group:
+   **[Course roster](https://docs.google.com/spreadsheets/d/1Up05qqrfg1q-oXC5eijNRJ7oyswjdmDAWxUUk_MsBIg/edit?gid=0#gid=0)**
+   — each group has a dedicated page (tab).
+2. Add your **GitHub username (nickname)** to your row in the table.
+3. Wait for the teacher to grant access — you will receive a GitHub invitation by email.
+4. Accept the invitation and then clone the repository directly (no fork needed).
+
+### Reviewer checks for forked PRs
+
+If a pull request originates from a **fork** (the head repository is different from the base
+repository), do **not** approve or merge it. Leave a `REQUEST_CHANGES` review with the
+following guidance:
+
+> It looks like this PR was opened from a fork. In this course we work directly in the shared
+> repository, so fork-based PRs cannot be merged. Here's what to do:
+>
+> 1. Make sure your GitHub username is listed in the
+>    [course roster spreadsheet](https://docs.google.com/spreadsheets/d/1Up05qqrfg1q-oXC5eijNRJ7oyswjdmDAWxUUk_MsBIg/edit?gid=0#gid=0)
+>    on your group's page.
+> 2. Once the teacher grants access and you accept the invitation, clone the main repo,
+>    recreate your branch there, and open a new PR from that branch.
+>
+> No need to redo your work — just copy your files into the new branch. Feel free to ask if
+> you need help!
+
+---
+
+## Repository Structure
+
+All files submitted by a student must be placed inside a dedicated top-level folder named
+after the student using the `SurnameName` format (e.g. `SmithJohn/`, `MokhNazar/`).
+
+### Rules
+
+- Every new file must reside under `/{SurnameName}/` — never in the repository root or any
+  other folder.
+- The folder name must follow the `SurnameName` convention: surname first, given name second,
+  no separator, each part capitalised (PascalCase).
+- Do not modify files outside your own `/{SurnameName}/` folder.
+
+### Examples
+
+```
+SmithWill/
+  index.html
+  styles.css
+  script.js
+
+DeppJohny/
+  index.html
+  styles.css
+```
+
+---
+
+## Pull Request Conventions
+
+### Title format
+
+Every pull request title must begin with a lab identifier followed by a colon and a space:
+
+```
+lab{number}: <short description>
+```
+
+### Examples
+
+```
+lab1: initial board rendering
+lab2: mine placement logic
+lab3: reveal and flag interactions
+```
+
+### Rules
+
+- `{number}` is a positive integer matching the lab assignment number (e.g. `lab1`, `lab12`).
+- The description after the colon must be lowercase and concise.
+- No PR should be opened without the `lab{number}:` prefix — reviewers will reject titles that
+  do not follow this format.
+
+### Reviewer checks
+
+When reviewing a pull request, verify all of the following before approving:
+
+1. **PR title** starts with `lab{number}: ` as described above.
+2. **All changed files** are inside the author's own `/{SurnameName}/` folder — no files
+   outside that folder should be added, modified, or deleted.
+3. **No top-level directory has been fully deleted.** If the diff shows that every file under
+   a `/{SurnameName}/` folder belonging to _another_ student has been removed, comment this in the PR. This is the most common way a student accidentally wipes a peer's work.
+   - Check the list of deleted files: if all deletions share the same top-level folder and
+     that folder is **not** the PR author's own folder, flag it.
+   - Request changes with a comment explaining which directory was unintentionally deleted and asking the author to restore it before the PR can be merged suggesting the way how to do that.
+4. **lab1 — HTML & CSS only.** If the PR title **or** the head branch name contains `lab1`,
+   check that no `.js` files are added or modified and that no `<script>` tags appear in any
+   HTML file.
+   - If any JavaScript is found, this is a **critical** violation — request changes with a
+     comment explaining that lab1 must be completed using HTML and CSS only, and that all
+     `.js` files and `<script>` tags must be removed before the PR can be merged.
+5. **lab2 — Pure JavaScript logic (no DOM).** If the PR title **or** the head branch name
+   contains `lab2`, check that the `.js` file contains only game logic — board creation, mine
+   placement, adjacency counting, reveal/flag state transitions, win/loss detection —
+   implemented as pure functions operating on plain data structures.
+   - The JavaScript must **not** contain DOM API calls such as `document.querySelector`,
+     `document.getElementById`, `addEventListener`, `innerHTML`, `createElement`,
+     `classList`, etc.
+   - No `.html` file should be added or modified beyond what already existed in lab1.
+   - **If DOM interactions are present:** this is not a blocking violation — the student may
+     have combined lab2 and lab3. Leave a medium-severity comment noting the deviation and
+     ask the student to rename the PR title to `lab2-3: <description>`. Do **not** request
+     changes solely because of DOM interactions if the logic itself is correct.
+6. **lab3 — Full DOM integration (Minesweeper complete).** If the PR title **or** the head
+   branch name contains `lab3` or `lab2-3`, verify that the submission wires together the
+   pure logic from lab2 and the HTML structure from lab1 to produce a playable game.
+   - The board must be rendered dynamically from JavaScript (not hard-coded in HTML).
+   - Left-click must reveal a cell; right-click (or equivalent) must toggle a flag.
+   - The game must detect and display a win or loss state.
+   - A mine count / remaining flags indicator must be updated in the UI.
+   - If lab2 logic is duplicated inline (e.g. mine placement written directly inside event
+     handlers) rather than extracted into reusable functions, flag this as a medium-severity
+     issue and suggest extracting it.
+   - Any JavaScript found in lab1 files (carry-over) is still a **high**-severity issue.
