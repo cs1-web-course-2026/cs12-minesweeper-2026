@@ -65,9 +65,9 @@ function countNeighbourMines(field) {
 
             let neighbourMines = 0;
 
-            for (const [dRow, dCol] of neighbourDirections) {
-                const nextRow = row + dRow;
-                const nextCol = col + dCol;
+            for (const [directionalRow, directionalCol] of neighbourDirections) {
+                const nextRow = row + directionalRow;
+                const nextCol = col + directionalCol;
                 const inside = nextRow >= 0 && nextRow < rows && nextCol >= 0 && nextCol < cols;
 
                 if (inside && field[nextRow][nextCol].type === "mine") {
@@ -75,7 +75,7 @@ function countNeighbourMines(field) {
                 }
             }
 
-            cell.neighborMines = neighbourMines;
+            cell.neighbourMines = neighbourMines;
         }
     }
 }
