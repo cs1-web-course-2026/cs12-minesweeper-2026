@@ -141,9 +141,9 @@ function openCellRecursive(row, col) {
         return;
     }
 
-    if (cell.neighbourMines === 0) {
-        for (const [directionalRow, directionalCol] of neighbourDirections) {
-            openCellRecursive(row + directionalRow, col + directionalCol);
+    if (cell.neighborMines === 0) {
+        for (const [dRow, dCol] of neighbourDirections) {
+            openCellRecursive(row + dRow, col + dCol);
         }
     }
 }
