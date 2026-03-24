@@ -200,3 +200,9 @@ body {
         padding: 8px;
     }
 }
+
+#game-status {
+    text-align: center;
+    margin-top: 10px;
+    font-weight: bold;
+}
