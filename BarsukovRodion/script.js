@@ -1,4 +1,5 @@
 const GAME_STATUS = {
+	IDLE: 'idle',
 	PLAYING: 'playing',
 	WON: 'won',
 	LOST: 'lost',
@@ -20,7 +21,7 @@ const gameState = {
 	cols: 9,
 	minesCount: 10,
 	flagsPlaced: 0,
-	status: GAME_STATUS.PLAYING,
+	status: GAME_STATUS.IDLE,
 	gameTime: 0,
 	timerId: null,
 };
@@ -160,6 +161,9 @@ function toggleFlag(row, col) {
 		cell.state = CELL_STATE.CLOSED;
 		gameState.flagsPlaced -= 1;
 	} else {
+		if (gameState.flagsPlaced >= gameState.minesCount) {
+			return;
+		}
 		cell.state = CELL_STATE.FLAGGED;
 		gameState.flagsPlaced += 1;
 	}
@@ -188,7 +192,7 @@ function checkWin() {
 
 function flagAllRemainingMines() {
 	field.forEach(row => row.forEach(cell => {
-		if (cell.type === CELL_CONTENT.MINE) {
+		if (cell.type === CELL_CONTENT.MINE && cell.state !== CELL_STATE.FLAGGED) {
 			cell.state = CELL_STATE.FLAGGED;
 		}
 	}));
@@ -241,6 +245,9 @@ function renderBoard() {
 			cellElement.dataset.col = colIndex;
 			cellElement.setAttribute('role', 'gridcell');
 
+			cellElement.tabIndex = 0;
+			cellElement.setAttribute('aria-label', `Cell ${rowIndex}, ${colIndex}`);
+
 			if (cell.state === CELL_STATE.CLOSED) {
 				cellElement.classList.add('cell--closed');
 			} else if (cell.state === CELL_STATE.FLAGGED) {
@@ -281,16 +288,18 @@ function updateFlagsUI() {
 }
 
 function updateStatusUI() {
+	statusElement.className = 'game-status';
+
 	if (gameState.status === GAME_STATUS.LOST) {
 		resetButton.textContent = '😵';
 		statusElement.textContent = 'Game over! You hit a mine.';
 		statusElement.hidden = false;
-		statusElement.style.color = '#ff4444';
+		statusElement.classList.add('game-status--lose');
 	} else if (gameState.status === GAME_STATUS.WON) {
 		resetButton.textContent = '😎';
 		statusElement.textContent = 'Victory! You cleared the field.';
 		statusElement.hidden = false;
-		statusElement.style.color = '#33ff66';
+		statusElement.classList.add('game-status--win');
 	} else {
 		resetButton.textContent = '🙂';
 		statusElement.hidden = true;
@@ -303,13 +312,18 @@ function updateUI() {
 	updateStatusUI();
 }
 
+function handleFirstAction() {
+	if (gameState.status === GAME_STATUS.IDLE) {
+		gameState.status = GAME_STATUS.PLAYING;
+		startTimer();
+	}
+}
+
 boardElement.addEventListener('click', (event) => {
 	const cellElement = event.target.closest('.cell');
 	if (!cellElement) return;
 
-	if (gameState.gameTime === 0 && !gameState.timerId && gameState.status === GAME_STATUS.PLAYING) {
-		startTimer();
-	}
+	handleFirstAction();
 
 	const row = parseInt(cellElement.dataset.row, 10);
 	const col = parseInt(cellElement.dataset.col, 10);
@@ -324,9 +338,7 @@ boardElement.addEventListener('contextmenu', (event) => {
 	const cellElement = event.target.closest('.cell');
 	if (!cellElement) return;
 
-	if (gameState.gameTime === 0 && !gameState.timerId && gameState.status === GAME_STATUS.PLAYING) {
-		startTimer();
-	}
+	handleFirstAction();
 
 	const row = parseInt(cellElement.dataset.row, 10);
 	const col = parseInt(cellElement.dataset.col, 10);
@@ -341,7 +353,7 @@ resetButton.addEventListener('click', () => {
 
 function initGame() {
 	stopTimer();
-	gameState.status = GAME_STATUS.PLAYING;
+	gameState.status = GAME_STATUS.IDLE;
 	gameState.gameTime = 0;
 	gameState.flagsPlaced = 0;
 	gameState.timerId = null;

@@ -206,3 +206,11 @@ body {
     margin-top: 10px;
     font-weight: bold;
 }
+
+.game-status--win {
+    color: #33ff66;
+}
+
+.game-status--lose {
+    color: #ff4444;
+}
