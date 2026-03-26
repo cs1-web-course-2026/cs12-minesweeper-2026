@@ -21,7 +21,7 @@ body {
 
 .title-container{
     width: 270px;
-    height: 360px;
+    min-height: 360px;
     background-color: var(--main-color);
     display: flex;
     align-items: center;
@@ -122,9 +122,14 @@ body {
     border: 5px solid;
     border-color: var(--border-color-inside);
     display: flex;
-    align-items: center;
-    justify-content: center;
+    align-items: flex-start;
+    justify-content: flex-start;
+    flex-direction: column;
     border-radius: 3px;
+}
+
+.field-row{
+    display: flex;
 }
 
 
@@ -138,6 +143,7 @@ body {
     align-items: center;
     justify-content: center;
     border-radius: 3px;
+    cursor: pointer;
 }
 
 .closed-cage:hover{
@@ -159,7 +165,11 @@ body {
 .num1::before,
 .num2::before,
 .num3::before,
-.num4::before{
+.num4::before,
+.num5::before,
+.num6::before,
+.num7::before,
+.num8::before{
     font-size: 25px;
     font-family: "Bitcount Grid Double";
     font-weight: 700;
@@ -184,6 +194,26 @@ body {
 .num4::before{
     color: navy;
     content: '4';
+}
+
+.num5::before{
+    color: maroon;
+    content: '5';
+}
+
+.num6::before{
+    color: teal;
+    content: '6';
+}
+
+.num7::before{
+    color: black;
+    content: '7';
+}
+
+.num8::before{
+    color: gray;
+    content: '8';
 }
 
 .flag::before,
@@ -223,4 +253,21 @@ body {
     background-color: rgb(213, 5, 5);
     border: 1px solid;
     border-color: rgb(213, 5, 5);
+}
+
+.status-message{
+    min-height: 24px;
+    margin-top: 8px;
+    font-family: "Bitcount Grid Double", sans-serif;
+    font-size: 14px;
+    font-weight: 700;
+    text-align: center;
+}
+
+.status-message.win{
+    color: rgb(35, 163, 63);
+}
+
+.status-message.lose{
+    color: rgb(213, 5, 5);
 }

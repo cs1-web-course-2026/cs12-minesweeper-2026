@@ -381,3 +381,161 @@ if (typeof window !== 'undefined') {
         createGame
     };
 }
+
+
+if (typeof window !== 'undefined' && typeof document !== 'undefined') {
+    (function initMinesweeperUI() {
+        const fieldElement = document.getElementById('field');
+        const timerCounterElement = document.getElementById('timer-counter');
+        const minesCounterElement = document.getElementById('mines-counter');
+        const restartButton = document.getElementById('restart-btn');
+        const faceButton = document.getElementById('face-btn');
+        const statusMessageElement = document.getElementById('status-message');
+
+        if (!fieldElement || !timerCounterElement || !minesCounterElement || !restartButton || !faceButton || !statusMessageElement) {
+            return;
+        }
+
+        const game = createGame();
+
+        function formatCounter(value) {
+            const numericValue = Number.isFinite(value) ? Math.floor(value) : 0;
+            const sign = numericValue < 0 ? '-' : '';
+            return sign + String(Math.abs(numericValue)).padStart(3, '0');
+        }
+
+        function getCellClass(cell) {
+            if (cell.state === CELL_STATE.FLAGGED) {
+                return cell.wrongFlag ? 'flag-bang' : 'flag';
+            }
+
+            if (cell.state === CELL_STATE.OPENED) {
+                if (cell.type === CELL_TYPE.MINE) {
+                    return cell.exploded ? 'open-cage mine-bang' : 'open-cage mine';
+                }
+
+                if (cell.neighborMines > 0) {
+                    return 'open-cage num' + cell.neighborMines;
+                }
+
+                return 'open-cage';
+            }
+
+            return 'closed-cage';
+        }
+
+        function renderGrid() {
+            const grid = game.getGrid();
+            const fragment = document.createDocumentFragment();
+
+            for (let row = 0; row < grid.length; row++) {
+                const rowElement = document.createElement('div');
+                rowElement.className = 'field-row';
+
+                for (let col = 0; col < grid[row].length; col++) {
+                    const cellElement = document.createElement('div');
+                    cellElement.className = getCellClass(grid[row][col]);
+                    cellElement.dataset.row = String(row);
+                    cellElement.dataset.col = String(col);
+                    rowElement.appendChild(cellElement);
+                }
+
+                fragment.appendChild(rowElement);
+            }
+
+            fieldElement.innerHTML = '';
+            fieldElement.appendChild(fragment);
+        }
+
+        function renderHeader() {
+            const state = game.getState();
+            timerCounterElement.textContent = formatCounter(state.gameTime);
+            minesCounterElement.textContent = formatCounter(game.getMinesLeft());
+
+            faceButton.classList.remove('face-win', 'face-lose', 'face-pressed');
+
+            if (state.status === GAME_STATUS.WIN) {
+                faceButton.classList.add('face-win');
+            } else if (state.status === GAME_STATUS.LOSE) {
+                faceButton.classList.add('face-lose');
+            }
+        }
+
+        function renderStatusMessage() {
+            const state = game.getState();
+
+            statusMessageElement.classList.remove('win', 'lose');
+            statusMessageElement.textContent = '';
+
+            if (state.status === GAME_STATUS.WIN) {
+                statusMessageElement.textContent = 'You win!';
+                statusMessageElement.classList.add('win');
+            } else if (state.status === GAME_STATUS.LOSE) {
+                statusMessageElement.textContent = 'Boom! You hit a mine.';
+                statusMessageElement.classList.add('lose');
+            }
+        }
+
+        function render() {
+            renderHeader();
+            renderGrid();
+            renderStatusMessage();
+        }
+
+        function getCellCoordinates(target) {
+            const cellElement = target.closest('[data-row][data-col]');
+            if (!cellElement) {
+                return null;
+            }
+
+            return {
+                row: Number(cellElement.dataset.row),
+                col: Number(cellElement.dataset.col)
+            };
+        }
+
+        function resetGame() {
+            game.initGame();
+            render();
+        }
+
+        fieldElement.addEventListener('click', (event) => {
+            const coords = getCellCoordinates(event.target);
+            if (!coords) {
+                return;
+            }
+
+            faceButton.classList.add('face-pressed');
+            game.openCell(coords.row, coords.col);
+            faceButton.classList.remove('face-pressed');
+            render();
+        });
+
+        fieldElement.addEventListener('contextmenu', (event) => {
+            event.preventDefault();
+
+            const coords = getCellCoordinates(event.target);
+            if (!coords) {
+                return;
+            }
+
+            game.toggleFlag(coords.row, coords.col);
+            render();
+        });
+
+        restartButton.addEventListener('click', resetGame);
+        faceButton.addEventListener('click', resetGame);
+        faceButton.addEventListener('keydown', (event) => {
+            if (event.key === 'Enter' || event.key === ' ') {
+                event.preventDefault();
+                resetGame();
+            }
+        });
+
+        setInterval(() => {
+            renderHeader();
+        }, 250);
+
+        resetGame();
+    })();
+}
