@@ -397,11 +397,34 @@ if (typeof window !== 'undefined' && typeof document !== 'undefined') {
         }
 
         const game = createGame();
+        const cellElements = [];
 
         function formatCounter(value) {
             const numericValue = Number.isFinite(value) ? Math.floor(value) : 0;
             const sign = numericValue < 0 ? '-' : '';
             return sign + String(Math.abs(numericValue)).padStart(3, '0');
+        }
+
+        function getCellAriaLabel(cell, row, col) {
+            const basePosition = 'Row ' + (row + 1) + ', column ' + (col + 1) + '. ';
+
+            if (cell.state === CELL_STATE.FLAGGED) {
+                return basePosition + (cell.wrongFlag ? 'Wrong flag.' : 'Flagged cell.');
+            }
+
+            if (cell.state === CELL_STATE.CLOSED) {
+                return basePosition + 'Closed cell.';
+            }
+
+            if (cell.type === CELL_TYPE.MINE) {
+                return basePosition + (cell.exploded ? 'Exploded mine.' : 'Mine.');
+            }
+
+            if (cell.neighborMines > 0) {
+                return basePosition + cell.neighborMines + ' neighboring mines.';
+            }
+
+            return basePosition + 'Open empty cell.';
         }
 
         function getCellClass(cell) {
@@ -424,33 +447,94 @@ if (typeof window !== 'undefined' && typeof document !== 'undefined') {
             return 'closed-cage';
         }
 
-        function renderGrid() {
-            const grid = game.getGrid();
+        function applyCellPresentation(cellElement, cell, row, col) {
+            cellElement.className = 'cell-btn ' + getCellClass(cell);
+            cellElement.setAttribute('aria-label', getCellAriaLabel(cell, row, col));
+            cellElement.setAttribute('aria-disabled', cell.state === CELL_STATE.OPENED ? 'true' : 'false');
+            cellElement.setAttribute('aria-pressed', cell.state === CELL_STATE.FLAGGED ? 'true' : 'false');
+        }
+
+        function buildGridDOM() {
+            const state = game.getState();
+
+            fieldElement.innerHTML = '';
+            cellElements.length = 0;
+            fieldElement.setAttribute('aria-rowcount', String(state.rows));
+            fieldElement.setAttribute('aria-colcount', String(state.cols));
+
             const fragment = document.createDocumentFragment();
 
-            for (let row = 0; row < grid.length; row++) {
+            for (let row = 0; row < state.rows; row++) {
                 const rowElement = document.createElement('div');
                 rowElement.className = 'field-row';
+                rowElement.setAttribute('role', 'row');
 
-                for (let col = 0; col < grid[row].length; col++) {
-                    const cellElement = document.createElement('div');
-                    cellElement.className = getCellClass(grid[row][col]);
+                const currentRowCells = [];
+
+                for (let col = 0; col < state.cols; col++) {
+                    const cellElement = document.createElement('button');
+                    cellElement.type = 'button';
+                    cellElement.className = 'cell-btn closed-cage';
                     cellElement.dataset.row = String(row);
                     cellElement.dataset.col = String(col);
+                    cellElement.setAttribute('role', 'gridcell');
+                    cellElement.setAttribute('aria-rowindex', String(row + 1));
+                    cellElement.setAttribute('aria-colindex', String(col + 1));
+                    cellElement.setAttribute('tabindex', row === 0 && col === 0 ? '0' : '-1');
+                    cellElement.setAttribute('aria-label', 'Row ' + (row + 1) + ', column ' + (col + 1) + '. Closed cell.');
+
                     rowElement.appendChild(cellElement);
+                    currentRowCells.push(cellElement);
                 }
 
+                cellElements.push(currentRowCells);
                 fragment.appendChild(rowElement);
             }
 
-            fieldElement.innerHTML = '';
             fieldElement.appendChild(fragment);
+        }
+
+        function moveFocusToCell(row, col) {
+            const targetCell = cellElements[row] && cellElements[row][col];
+            if (!targetCell) {
+                return;
+            }
+
+            for (let r = 0; r < cellElements.length; r++) {
+                for (let c = 0; c < cellElements[r].length; c++) {
+                    cellElements[r][c].setAttribute('tabindex', '-1');
+                }
+            }
+
+            targetCell.setAttribute('tabindex', '0');
+            targetCell.focus();
+        }
+
+        function openCellAction(row, col) {
+            faceButton.classList.add('face-pressed');
+            game.openCell(row, col);
+            faceButton.classList.remove('face-pressed');
+            render();
+        }
+
+        function toggleFlagAction(row, col) {
+            game.toggleFlag(row, col);
+            render();
+        }
+
+        function renderGrid() {
+            const grid = game.getGrid();
+            for (let row = 0; row < grid.length; row++) {
+                for (let col = 0; col < grid[row].length; col++) {
+                    applyCellPresentation(cellElements[row][col], grid[row][col], row, col);
+                }
+            }
         }
 
         function renderHeader() {
             const state = game.getState();
             timerCounterElement.textContent = formatCounter(state.gameTime);
-            minesCounterElement.textContent = formatCounter(game.getMinesLeft());
+            minesCounterElement.textContent = formatCounter(state.minesLeft);
 
             faceButton.classList.remove('face-win', 'face-lose', 'face-pressed');
 
@@ -496,6 +580,16 @@ if (typeof window !== 'undefined' && typeof document !== 'undefined') {
 
         function resetGame() {
             game.initGame();
+
+            const state = game.getState();
+            const shouldRebuild =
+                cellElements.length !== state.rows ||
+                (cellElements[0] && cellElements[0].length !== state.cols);
+
+            if (shouldRebuild) {
+                buildGridDOM();
+            }
+
             render();
         }
 
@@ -505,10 +599,8 @@ if (typeof window !== 'undefined' && typeof document !== 'undefined') {
                 return;
             }
 
-            faceButton.classList.add('face-pressed');
-            game.openCell(coords.row, coords.col);
-            faceButton.classList.remove('face-pressed');
-            render();
+            openCellAction(coords.row, coords.col);
+            moveFocusToCell(coords.row, coords.col);
         });
 
         fieldElement.addEventListener('contextmenu', (event) => {
@@ -519,8 +611,47 @@ if (typeof window !== 'undefined' && typeof document !== 'undefined') {
                 return;
             }
 
-            game.toggleFlag(coords.row, coords.col);
-            render();
+            toggleFlagAction(coords.row, coords.col);
+            moveFocusToCell(coords.row, coords.col);
+        });
+
+        fieldElement.addEventListener('keydown', (event) => {
+            const coords = getCellCoordinates(event.target);
+            if (!coords) {
+                return;
+            }
+
+            if (event.key === 'Enter' || event.key === ' ') {
+                event.preventDefault();
+                openCellAction(coords.row, coords.col);
+                moveFocusToCell(coords.row, coords.col);
+                return;
+            }
+
+            if (event.key === 'f' || event.key === 'F') {
+                event.preventDefault();
+                toggleFlagAction(coords.row, coords.col);
+                moveFocusToCell(coords.row, coords.col);
+                return;
+            }
+
+            let nextRow = coords.row;
+            let nextCol = coords.col;
+
+            if (event.key === 'ArrowUp') {
+                nextRow = Math.max(0, coords.row - 1);
+            } else if (event.key === 'ArrowDown') {
+                nextRow = Math.min(cellElements.length - 1, coords.row + 1);
+            } else if (event.key === 'ArrowLeft') {
+                nextCol = Math.max(0, coords.col - 1);
+            } else if (event.key === 'ArrowRight') {
+                nextCol = Math.min(cellElements[0].length - 1, coords.col + 1);
+            } else {
+                return;
+            }
+
+            event.preventDefault();
+            moveFocusToCell(nextRow, nextCol);
         });
 
         restartButton.addEventListener('click', resetGame);
@@ -536,6 +667,7 @@ if (typeof window !== 'undefined' && typeof document !== 'undefined') {
             renderHeader();
         }, 250);
 
+        buildGridDOM();
         resetGame();
     })();
 }

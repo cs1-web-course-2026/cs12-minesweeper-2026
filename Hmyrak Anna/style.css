@@ -132,6 +132,22 @@ body {
     display: flex;
 }
 
+.cell-btn{
+    appearance: none;
+    -webkit-appearance: none;
+    background: transparent;
+    padding: 0;
+    margin: 0;
+    font: inherit;
+    color: inherit;
+    line-height: 1;
+}
+
+.cell-btn:focus-visible{
+    outline: 2px solid rgb(28, 97, 224);
+    outline-offset: -2px;
+}
+
 
 .closed-cage{
     width: 25px;
