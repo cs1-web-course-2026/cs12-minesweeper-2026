@@ -452,7 +452,9 @@ if (typeof window !== 'undefined' && typeof document !== 'undefined') {
         function applyCellPresentation(cellElement, cell, row, col) {
             cellElement.className = 'cell-btn ' + getCellClass(cell);
             cellElement.setAttribute('aria-label', getCellAriaLabel(cell, row, col));
-            cellElement.setAttribute('aria-disabled', cell.state === CELL_STATE.OPENED ? 'true' : 'false');
+            const isDisabled = cell.state === CELL_STATE.OPENED;
+            cellElement.disabled = isDisabled;
+            cellElement.setAttribute('aria-disabled', isDisabled ? 'true' : 'false');
             cellElement.setAttribute('aria-pressed', cell.state === CELL_STATE.FLAGGED ? 'true' : 'false');
         }
 
@@ -479,7 +481,6 @@ if (typeof window !== 'undefined' && typeof document !== 'undefined') {
                     cellElement.className = 'cell-btn closed-cage';
                     cellElement.dataset.row = String(row);
                     cellElement.dataset.col = String(col);
-                    cellElement.setAttribute('role', 'gridcell');
                     cellElement.setAttribute('aria-rowindex', String(row + 1));
                     cellElement.setAttribute('aria-colindex', String(col + 1));
                     cellElement.setAttribute('tabindex', row === currentFocus.row && col === currentFocus.col ? '0' : '-1');
@@ -560,6 +561,12 @@ if (typeof window !== 'undefined' && typeof document !== 'undefined') {
             timerCounterElement.textContent = formatCounter(state.gameTime);
             minesCounterElement.textContent = formatCounter(state.minesLeft);
 
+            if (state.status === GAME_STATUS.PROCESS) {
+                startHeaderSync();
+            } else {
+                stopHeaderSync();
+            }
+
             faceButton.classList.remove('face-win', 'face-lose', 'face-pressed');
 
             if (state.status === GAME_STATUS.WIN) {
@@ -604,6 +611,7 @@ if (typeof window !== 'undefined' && typeof document !== 'undefined') {
 
         function resetGame() {
             game.initGame();
+            startHeaderSync();
 
             const state = game.getState();
             const shouldRebuild =
@@ -633,19 +641,22 @@ if (typeof window !== 'undefined' && typeof document !== 'undefined') {
         });
 
         fieldElement.addEventListener('contextmenu', (event) => {
-            event.preventDefault();
-
             const coords = getCellCoordinates(event.target);
             if (!coords) {
                 return;
             }
+
+            event.preventDefault();
 
             toggleFlagAction(coords.row, coords.col);
             moveFocusToCell(coords.row, coords.col);
         });
 
         fieldElement.addEventListener('keydown', (event) => {
-            const coords = getCellCoordinates(event.target);
+            let coords = getCellCoordinates(event.target);
+            if (!coords && typeof currentFocus !== 'undefined' && currentFocus) {
+                coords = getCellCoordinates(currentFocus);
+            }
             if (!coords) {
                 return;
             }
@@ -692,7 +703,6 @@ if (typeof window !== 'undefined' && typeof document !== 'undefined') {
             }
         });
 
-        startHeaderSync();
         window.addEventListener('beforeunload', stopHeaderSync, { once: true });
 
         buildGridDOM();

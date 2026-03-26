@@ -148,6 +148,8 @@ body {
     font: inherit;
     color: inherit;
     line-height: 1;
+    border: 0;
+    border-radius: 0;
     vertical-align: top;
 }
 
