@@ -136,11 +136,19 @@ body {
     appearance: none;
     -webkit-appearance: none;
     background: transparent;
+    box-sizing: content-box;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex: 0 0 auto;
     padding: 0;
     margin: 0;
+    border: 0;
+    border-radius: 0;
     font: inherit;
     color: inherit;
     line-height: 1;
+    vertical-align: top;
 }
 
 .cell-btn:focus-visible{
