@@ -398,6 +398,8 @@ if (typeof window !== 'undefined' && typeof document !== 'undefined') {
 
         const game = createGame();
         const cellElements = [];
+        const currentFocus = { row: 0, col: 0 };
+        let headerIntervalId = null;
 
         function formatCounter(value) {
             const numericValue = Number.isFinite(value) ? Math.floor(value) : 0;
@@ -480,7 +482,7 @@ if (typeof window !== 'undefined' && typeof document !== 'undefined') {
                     cellElement.setAttribute('role', 'gridcell');
                     cellElement.setAttribute('aria-rowindex', String(row + 1));
                     cellElement.setAttribute('aria-colindex', String(col + 1));
-                    cellElement.setAttribute('tabindex', row === 0 && col === 0 ? '0' : '-1');
+                    cellElement.setAttribute('tabindex', row === currentFocus.row && col === currentFocus.col ? '0' : '-1');
                     cellElement.setAttribute('aria-label', 'Row ' + (row + 1) + ', column ' + (col + 1) + '. Closed cell.');
 
                     rowElement.appendChild(cellElement);
@@ -500,14 +502,36 @@ if (typeof window !== 'undefined' && typeof document !== 'undefined') {
                 return;
             }
 
-            for (let r = 0; r < cellElements.length; r++) {
-                for (let c = 0; c < cellElements[r].length; c++) {
-                    cellElements[r][c].setAttribute('tabindex', '-1');
-                }
+            const previousCell = cellElements[currentFocus.row] && cellElements[currentFocus.row][currentFocus.col];
+
+            if (previousCell && previousCell !== targetCell) {
+                previousCell.setAttribute('tabindex', '-1');
             }
 
+            currentFocus.row = row;
+            currentFocus.col = col;
             targetCell.setAttribute('tabindex', '0');
             targetCell.focus();
+        }
+
+        function startHeaderSync() {
+            if (headerIntervalId !== null) {
+                return;
+            }
+
+            headerIntervalId = setInterval(() => {
+                const state = game.getState();
+                if (state.status === GAME_STATUS.PROCESS && state.started) {
+                    renderHeader();
+                }
+            }, 1000);
+        }
+
+        function stopHeaderSync() {
+            if (headerIntervalId !== null) {
+                clearInterval(headerIntervalId);
+                headerIntervalId = null;
+            }
         }
 
         function openCellAction(row, col) {
@@ -586,6 +610,11 @@ if (typeof window !== 'undefined' && typeof document !== 'undefined') {
                 cellElements.length !== state.rows ||
                 (cellElements[0] && cellElements[0].length !== state.cols);
 
+            if (currentFocus.row >= state.rows || currentFocus.col >= state.cols) {
+                currentFocus.row = 0;
+                currentFocus.col = 0;
+            }
+
             if (shouldRebuild) {
                 buildGridDOM();
             }
@@ -663,9 +692,8 @@ if (typeof window !== 'undefined' && typeof document !== 'undefined') {
             }
         });
 
-        setInterval(() => {
-            renderHeader();
-        }, 250);
+        startHeaderSync();
+        window.addEventListener('beforeunload', stopHeaderSync, { once: true });
 
         buildGridDOM();
         resetGame();
