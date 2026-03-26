@@ -453,7 +453,6 @@ if (typeof window !== 'undefined' && typeof document !== 'undefined') {
             cellElement.className = 'cell-btn ' + getCellClass(cell);
             cellElement.setAttribute('aria-label', getCellAriaLabel(cell, row, col));
             const isDisabled = cell.state === CELL_STATE.OPENED;
-            cellElement.disabled = isDisabled;
             cellElement.setAttribute('aria-disabled', isDisabled ? 'true' : 'false');
             cellElement.setAttribute('aria-pressed', cell.state === CELL_STATE.FLAGGED ? 'true' : 'false');
         }
@@ -481,6 +480,7 @@ if (typeof window !== 'undefined' && typeof document !== 'undefined') {
                     cellElement.className = 'cell-btn closed-cage';
                     cellElement.dataset.row = String(row);
                     cellElement.dataset.col = String(col);
+                    cellElement.setAttribute('role', 'gridcell');
                     cellElement.setAttribute('aria-rowindex', String(row + 1));
                     cellElement.setAttribute('aria-colindex', String(col + 1));
                     cellElement.setAttribute('tabindex', row === currentFocus.row && col === currentFocus.col ? '0' : '-1');
@@ -598,6 +598,10 @@ if (typeof window !== 'undefined' && typeof document !== 'undefined') {
         }
 
         function getCellCoordinates(target) {
+            if (!target || typeof target.closest !== 'function') {
+                return null;
+            }
+
             const cellElement = target.closest('[data-row][data-col]');
             if (!cellElement) {
                 return null;
@@ -607,6 +611,21 @@ if (typeof window !== 'undefined' && typeof document !== 'undefined') {
                 row: Number(cellElement.dataset.row),
                 col: Number(cellElement.dataset.col)
             };
+        }
+
+        function getCurrentFocusCoordinates() {
+            if (
+                typeof currentFocus.row === 'number' &&
+                typeof currentFocus.col === 'number' &&
+                currentFocus.row >= 0 &&
+                currentFocus.col >= 0 &&
+                currentFocus.row < cellElements.length &&
+                currentFocus.col < cellElements[0].length
+            ) {
+                return { row: currentFocus.row, col: currentFocus.col };
+            }
+
+            return null;
         }
 
         function resetGame() {
@@ -654,8 +673,8 @@ if (typeof window !== 'undefined' && typeof document !== 'undefined') {
 
         fieldElement.addEventListener('keydown', (event) => {
             let coords = getCellCoordinates(event.target);
-            if (!coords && typeof currentFocus !== 'undefined' && currentFocus) {
-                coords = getCellCoordinates(currentFocus);
+            if (!coords) {
+                coords = getCurrentFocusCoordinates();
             }
             if (!coords) {
                 return;
