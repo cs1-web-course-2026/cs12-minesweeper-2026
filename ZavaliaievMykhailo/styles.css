@@ -260,10 +260,12 @@ body::after {
   color: var(--forest-900);
   cursor: pointer;
   touch-action: manipulation;
+  transform-origin: center;
   transition:
     transform 180ms var(--timing-smooth),
     box-shadow 180ms var(--timing-smooth),
-    background-color 180ms ease;
+    background-color 180ms ease,
+    filter 180ms ease;
 }
 
 .reset:hover,
@@ -275,7 +277,11 @@ body::after {
 }
 
 .reset:active {
-  transform: translateY(0) scale(0.985);
+  transform: translateY(3px) scale(0.97);
+  box-shadow:
+    0 8px 16px rgba(55, 40, 23, 0.18),
+    inset 0 3px 6px rgba(70, 50, 26, 0.22);
+  filter: saturate(0.95) brightness(0.96);
 }
 
 .page[data-status="won"] .reset {
@@ -381,27 +387,32 @@ body::after {
   justify-content: center;
   overflow: hidden;
   touch-action: manipulation;
+  transform-origin: center;
   transition:
     transform 180ms var(--timing-smooth),
     box-shadow 180ms var(--timing-smooth),
     background-color 180ms ease,
-    color 180ms ease;
+    color 180ms ease,
+    filter 180ms ease;
   animation: cellAppear 420ms both;
   animation-delay: var(--cell-delay, 0ms);
 }
 
 .cell:hover:not(:disabled)[data-surface="closed"],
 .cell:hover:not(:disabled)[data-surface="flagged"] {
-  transform: translateY(-3px) scale(1.015);
+  transform: translateY(-2px) scale(1.02);
   box-shadow:
-    0 16px 26px rgba(37, 28, 19, 0.24),
-    inset 0 1px 0 rgba(219, 202, 166, 0.16),
-    inset 0 -2px 0 rgba(28, 22, 15, 0.14);
+    0 18px 36px rgba(55, 40, 23, 0.24),
+    inset 0 1px 0 rgba(238, 224, 191, 0.32);
 }
 
 .cell:active:not(:disabled)[data-surface="closed"],
 .cell:active:not(:disabled)[data-surface="flagged"] {
-  transform: translateY(0) scale(0.98);
+  transform: translateY(3px) scale(0.94);
+  box-shadow:
+    0 5px 10px rgba(37, 28, 19, 0.18),
+    inset 0 3px 6px rgba(28, 22, 15, 0.22);
+  filter: brightness(0.94);
 }
 
 .cell:focus-visible {
