@@ -3,7 +3,7 @@ name: pr-comment-followup
 description: Follows up on existing review comments for one or more pull requests. Uses two AI classifier sub-agents (Claude Sonnet 4.6 and GPT-5.3-Codex) to independently classify each review thread, merges their verdicts with conservative tie-breaking, then acts — replies and resolves if fixed; unresolves and requests action if not fixed but already resolved; reacts with 👎 and resolves with explanation if the comment is no longer applicable. Use this skill when asked to follow up on PR comments, check if review comments were addressed, or triage review threads.
 ---
 
-Follow up on review comment threads for the pull requests listed below. Use two classifier sub-agents — one running Claude Sonnet 4.6 and one running GPT-5.3-Codex — to independently classify each thread, merge their verdicts with conservative tie-breaking, then take the appropriate action on each thread.
+For each PR number provided, fetch all review threads and the current diff, run two classifier sub-agents in parallel to agree on each thread's status, merge their verdicts, then act once per thread.
 
 ## Important constraints
 
@@ -87,6 +87,7 @@ Discard threads that have zero comments. If there are no review threads, skip to
 **Wait for Step 1 to finish.**
 
 Invoke the `pr-comment-classifier-claude` sub-agent, passing:
+
 - PR number
 - The full unified diff text
 - The list of review threads (thread `id`, `isResolved`, all comment bodies, `path`, `line`)
@@ -106,13 +107,13 @@ Invoke the `pr-comment-classifier-codex` sub-agent with the same inputs.
 
 For each thread, combine the two verdicts using this priority order (most conservative wins):
 
-| Claude verdict | Codex verdict | Merged verdict |
-|---|---|---|
-| `FIXED` | `FIXED` | `FIXED` |
+| Claude verdict   | Codex verdict    | Merged verdict   |
+| ---------------- | ---------------- | ---------------- |
+| `FIXED`          | `FIXED`          | `FIXED`          |
 | `NOT_APPLICABLE` | `NOT_APPLICABLE` | `NOT_APPLICABLE` |
-| `FIXED` | `NOT_APPLICABLE` | `NOT_APPLICABLE` |
-| anything | `NOT_FIXED` | `NOT_FIXED` |
-| `NOT_FIXED` | anything | `NOT_FIXED` |
+| `FIXED`          | `NOT_APPLICABLE` | `NOT_APPLICABLE` |
+| anything         | `NOT_FIXED`      | `NOT_FIXED`      |
+| `NOT_FIXED`      | anything         | `NOT_FIXED`      |
 
 Rule: `NOT_FIXED` beats everything; `NOT_APPLICABLE` beats `FIXED`; `FIXED` only when both agree.
 
@@ -125,11 +126,13 @@ For each thread, take exactly one action based on the merged verdict:
 Post a reply on the thread's first comment, then resolve the thread.
 
 **Reply body:**
+
 ```
 ✅ **[AI Generated] Addressed** — The concern raised in this comment appears to have been resolved in the latest changes. Resolving this thread.
 ```
 
 Resolve via GraphQL:
+
 ```bash
 gh api graphql -f query='
   mutation($threadId: ID!) {
@@ -141,6 +144,7 @@ gh api graphql -f query='
 ```
 
 Post reply via REST:
+
 ```bash
 gh api \
   --method POST \
@@ -153,6 +157,7 @@ gh api \
 If the thread is **already resolved** (`isResolved: true`): unresolve it first, then post a reply requesting action.
 
 Unresolve via GraphQL:
+
 ```bash
 gh api graphql -f query='
   mutation($threadId: ID!) {
@@ -166,41 +171,100 @@ gh api graphql -f query='
 If the thread is **not resolved**: post a reply only (no resolve/unresolve).
 
 **Reply body:**
+
 ```
 🔁 **[AI Generated] Still open** — This concern does not appear to have been addressed yet. Please revisit the original comment and update the code accordingly before requesting re-review.
 ```
 
 #### Merged verdict: `NOT_APPLICABLE`
 
-Add a 👎 reaction to the first comment of the thread, then post a reply and resolve the thread.
+Add a 👎 reaction to the first comment:
 
-Add reaction:
 ```bash
 gh api \
   --method POST \
+  -H "Accept: application/vnd.github+json" \
   /repos/{owner}/{repo}/pulls/comments/{first_comment_database_id}/reactions \
   -f content="-1"
 ```
 
-**Reply body:**
+Post a reply explaining why the comment **itself is not a valid improvement**. Use the `reasoning` from the sub-agent responses and the guidance in `.github/skills/pr-comment-followup/not-relevant-guidance.md`.
+
+```bash
+gh api \
+  --method POST \
+  -H "Accept: application/vnd.github+json" \
+  /repos/{owner}/{repo}/pulls/{pr_number}/comments/{first_comment_database_id}/replies \
+  -f body="👎 **Not applicable.** <INSERT SPECIFIC REASON — explaining why the comment itself is incorrect or not a genuine improvement.> Resolving this thread. _[AI-generated]_"
 ```
-👎 **[AI Generated] No longer applicable** — This comment refers to code or context that no longer exists in the current state of the PR. Resolving this thread as not applicable.
+
+Then resolve the thread:
+
+```bash
+gh api graphql -f query='
+mutation {
+  resolveReviewThread(input: { threadId: "{thread_node_id}" }) {
+    thread { id isResolved }
+  }
+}'
 ```
 
-Resolve via GraphQL (same mutation as `FIXED`).
+---
 
-### Step 6 — Verify
+#### Case D — `not_fixed` AND `is_resolved: false` (still open)
 
-After acting on all threads, re-fetch the thread list via GraphQL and confirm:
-- `FIXED` threads are now `isResolved: true`
-- `NOT_APPLICABLE` threads are now `isResolved: true`
-- `NOT_FIXED` threads that were resolved before are now `isResolved: false`
+No action needed — the thread correctly reflects the open state. Record it as **skipped**.
+
+---
+
+### Step 5 — Verify actions
+
+After processing all threads for the PR, fetch the updated thread list to confirm resolved states match expectations:
+
+```bash
+gh api graphql -f query='
+query {
+  repository(owner: "{owner}", name: "{repo}") {
+    pullRequest(number: {pr_number}) {
+      reviewThreads(first: 100) {
+        nodes {
+          id
+          isResolved
+        }
+      }
+    }
+  }
+}'
+```
+
+Log any discrepancy (e.g. a thread that should be resolved but is not) and note it in the final report.
+
+---
 
 ## Final report
 
-After all PRs have been processed, report:
+After all PRs have been processed, report a summary block for each PR. Use one block per thread, followed by a totals line:
 
-- PR number and title
-- Total threads processed
-- Count per verdict: `FIXED` / `NOT_FIXED` / `NOT_APPLICABLE`
-- For each thread: brief excerpt of the original comment, verdict, and action taken
+```
+### PR #{pr_number} — {title}
+
+Thread 1 — "Use CELL_STATE enum instead of raw strings..."
+  Claude: fixed  ·  Codex: fixed  →  **fixed**
+  ✅ Replied + resolved
+
+Thread 2 — "Missing return statement in revealCell"
+  Claude: not_fixed  ·  Codex: not_fixed  →  **not_fixed**
+  ⚠️ Unresolved + commented
+
+Thread 3 — "Outdated concern about variable naming"
+  Claude: not_relevant  ·  Codex: not_relevant  →  **not_relevant**
+  👎 Dismissed + resolved
+
+Thread 4 — "Single-letter variable 'r' used in loop"
+  Claude: not_fixed  ·  Codex: fixed  →  **not_fixed** _(disagreement)_
+  ⏭️ Skipped (still open)
+
+**Totals:** {fixed} fixed · {not_fixed_reopened} re-opened · {not_relevant} dismissed · {skipped} skipped
+```
+
+Append `_(disagreement)_` to the merged verdict line whenever Claude and Codex produced different verdicts.
