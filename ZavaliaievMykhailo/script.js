@@ -283,22 +283,28 @@ function resetGame() {
 }
 
 function initializeBoard() {
-  const fragment = document.createDocumentFragment();
+  const cellElements = Array.from(elements.board.querySelectorAll('.cell'));
+  const expectedCellsCount = gameState.rows * gameState.cols;
+
+  if (cellElements.length !== expectedCellsCount) {
+    throw new Error(`Board markup must contain exactly ${expectedCellsCount} cells.`);
+  }
 
   boardButtons = Array.from({ length: gameState.rows }, (_, rowIndex) => (
     Array.from({ length: gameState.cols }, (_, colIndex) => {
-      const button = document.createElement('button');
+      const button = cellElements[rowIndex * gameState.cols + colIndex];
 
-      button.type = 'button';
-      button.className = 'cell';
       button.dataset.row = String(rowIndex);
       button.dataset.col = String(colIndex);
+      button.dataset.surface = CELL_STATE.CLOSED;
+      button.dataset.kind = CELL_CONTENT.EMPTY;
+      button.dataset.count = '0';
+      button.textContent = '';
+      button.disabled = false;
       button.style.setProperty(
         '--cell-delay',
         `${Math.min((rowIndex * gameState.cols + colIndex) * 12, 240)}ms`,
       );
-
-      fragment.append(button);
 
       return button;
     })
@@ -309,7 +315,6 @@ function initializeBoard() {
     'aria-label',
     `Minesweeper board ${gameState.rows} by ${gameState.cols}`,
   );
-  elements.board.replaceChildren(fragment);
 }
 
 function getFlagsPlaced() {
