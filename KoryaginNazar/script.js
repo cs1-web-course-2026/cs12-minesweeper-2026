@@ -24,6 +24,20 @@ const DEFAULT_GAME_CONFIGURATION = {
   minesCount: 15,
 };
 
+const BOARD_CELL_SIZE = 40;
+
+const UI_TEXT = {
+  STARTED: 'Гра розпочалась',
+  WON: 'Перемога! Всі безпечні клітинки відкриті.',
+  LOST: 'Поразка! Ви натрапили на міну.',
+};
+
+const RESTART_BUTTON_FACE = {
+  PLAYING: '🙂',
+  WON: '😎',
+  LOST: '😵',
+};
+
 const NEIGHBOUR_DIRECTIONS = [
   [-1, -1],
   [-1, 0],
@@ -35,6 +49,26 @@ const NEIGHBOUR_DIRECTIONS = [
   [1, 1],
 ];
 
+const domElements = {
+  playingField: document.querySelector('#playing-field'),
+  flagsCounter: document.querySelector('#flags-counter'),
+  timerCounter: document.querySelector('#timer-counter'),
+  restartButton: document.querySelector('#restart-button'),
+  statusMessage: document.querySelector('#status-message'),
+};
+
+const timerAdapter = {
+  start(onTick) {
+    return window.setInterval(onTick, 1000);
+  },
+  stop(timerId) {
+    window.clearInterval(timerId);
+  },
+};
+
+let activeGameField = [];
+let activeGameState = null;
+
 function createInitialGameState(rows, cols, minesCount) {
   const initialState = {
     rows,
@@ -43,6 +77,8 @@ function createInitialGameState(rows, cols, minesCount) {
     status: GAME_STATUS.PLAYING,
     gameTime: 0,
     timerId: null,
+    flagsPlacedCount: 0,
+    explodedMinePosition: null,
   };
 
   return initialState;
@@ -154,6 +190,7 @@ function generateField(rows, cols, minesCount) {
 
     field[mineRow][mineCol].type = CELL_CONTENT.MINE;
   }
+
   countNeighbourMines(field);
 
   return field;
@@ -192,13 +229,13 @@ function checkWinCondition(field, minesCount) {
   return openedCellsCount === shouldBeOpenedCellsCount;
 }
 
-function stopGameTimer(currentGameState, timerAdapter) {
+function stopGameTimer(currentGameState, currentTimerAdapter) {
   if (currentGameState.timerId === null) {
     return false;
   }
 
-  if (timerAdapter && typeof timerAdapter.stop === 'function') {
-    timerAdapter.stop(currentGameState.timerId);
+  if (currentTimerAdapter && typeof currentTimerAdapter.stop === 'function') {
+    currentTimerAdapter.stop(currentGameState.timerId);
   }
 
   currentGameState.timerId = null;
@@ -206,16 +243,19 @@ function stopGameTimer(currentGameState, timerAdapter) {
   return true;
 }
 
-function startGameTimer(currentGameState, timerAdapter) {
+function startGameTimer(currentGameState, currentTimerAdapter) {
   if (currentGameState.timerId !== null) {
     return false;
   }
 
-  if (!timerAdapter || typeof timerAdapter.start !== 'function') {
+  if (!currentTimerAdapter || typeof currentTimerAdapter.start !== 'function') {
     return false;
   }
 
-  currentGameState.timerId = timerAdapter.start();
+  currentGameState.timerId = currentTimerAdapter.start(() => {
+    advanceGameTime(currentGameState);
+    renderTimerCounter(currentGameState);
+  });
 
   return true;
 }
@@ -257,6 +297,7 @@ function openCell(row, col, field, currentGameState, openCellContext) {
 
   if (selectedCell.type === CELL_CONTENT.MINE) {
     currentGameState.status = GAME_STATUS.LOST;
+    currentGameState.explodedMinePosition = { row, col };
     revealAllMines(field);
 
     return currentOpenCellContext.isAnyCellOpened;
@@ -302,13 +343,19 @@ function toggleFlag(row, col, field, currentGameState) {
   }
 
   if (selectedCell.state === CELL_STATE.CLOSED) {
+    if (currentGameState.flagsPlacedCount >= currentGameState.minesCount) {
+      return false;
+    }
+
     selectedCell.state = CELL_STATE.FLAGGED;
+    currentGameState.flagsPlacedCount += 1;
 
     return true;
   }
 
   if (selectedCell.state === CELL_STATE.FLAGGED) {
     selectedCell.state = CELL_STATE.CLOSED;
+    currentGameState.flagsPlacedCount -= 1;
 
     return true;
   }
@@ -330,6 +377,196 @@ function resetGame(
   };
 }
 
+function formatCounterValue(value) {
+  const normalizedValue = Math.max(0, value);
+
+  return String(normalizedValue).padStart(3, '0');
+}
+
+function renderTimerCounter(currentGameState) {
+  domElements.timerCounter.textContent = formatCounterValue(currentGameState.gameTime);
+}
+
+function renderFlagsCounter(currentGameState) {
+  const remainingFlags = currentGameState.minesCount - currentGameState.flagsPlacedCount;
+
+  domElements.flagsCounter.textContent = formatCounterValue(remainingFlags);
+}
+
+function getCellClassNames(row, col, currentCell, currentGameState) {
+  const classNames = ['board-cell'];
+
+  if (currentCell.state === CELL_STATE.CLOSED) {
+    classNames.push('closed');
+
+    return classNames;
+  }
+
+  if (currentCell.state === CELL_STATE.FLAGGED) {
+    classNames.push('closed', 'flag');
+
+    return classNames;
+  }
+
+  classNames.push('open');
+
+  if (currentCell.type === CELL_CONTENT.MINE) {
+    const isExplodedMine =
+      currentGameState.explodedMinePosition &&
+      currentGameState.explodedMinePosition.row === row &&
+      currentGameState.explodedMinePosition.col === col;
+
+    classNames.push(isExplodedMine ? 'exploded-bomb' : 'bomb');
+
+    return classNames;
+  }
+
+  if (currentCell.neighbourMines > 0) {
+    classNames.push(`adjacent-mine-count-${currentCell.neighbourMines}`);
+  }
+
+  return classNames;
+}
+
+function renderPlayingField(currentField, currentGameState) {
+  const boardFragment = document.createDocumentFragment();
+
+  domElements.playingField.style.gridTemplateColumns = `repeat(${currentGameState.cols}, ${BOARD_CELL_SIZE}px)`;
+
+  for (let row = 0; row < currentField.length; row += 1) {
+    for (let col = 0; col < currentField[row].length; col += 1) {
+      const currentCell = currentField[row][col];
+      const cellButton = document.createElement('button');
+
+      cellButton.type = 'button';
+      cellButton.setAttribute('aria-label', `Board cell ${row}-${col}`);
+      cellButton.dataset.row = String(row);
+      cellButton.dataset.col = String(col);
+      cellButton.className = getCellClassNames(row, col, currentCell, currentGameState).join(' ');
+
+      boardFragment.append(cellButton);
+    }
+  }
+
+  domElements.playingField.replaceChildren(boardFragment);
+}
+
+function updateGameStatusPresentation(currentGameState) {
+  if (currentGameState.status === GAME_STATUS.WON) {
+    domElements.statusMessage.textContent = UI_TEXT.WON;
+    domElements.restartButton.textContent = RESTART_BUTTON_FACE.WON;
+
+    return;
+  }
+
+  if (currentGameState.status === GAME_STATUS.LOST) {
+    domElements.statusMessage.textContent = UI_TEXT.LOST;
+    domElements.restartButton.textContent = RESTART_BUTTON_FACE.LOST;
+
+    return;
+  }
+
+  domElements.statusMessage.textContent = UI_TEXT.STARTED;
+  domElements.restartButton.textContent = RESTART_BUTTON_FACE.PLAYING;
+}
+
+function applyGameEndIfNeeded(currentGameState) {
+  if (currentGameState.status === GAME_STATUS.PLAYING) {
+    return;
+  }
+
+  stopGameTimer(currentGameState, timerAdapter);
+}
+
+function renderGame(currentField, currentGameState) {
+  renderPlayingField(currentField, currentGameState);
+  renderFlagsCounter(currentGameState);
+  renderTimerCounter(currentGameState);
+  updateGameStatusPresentation(currentGameState);
+}
+
+function readCellCoordinatesFromEvent(event) {
+  const cellButton = event.target.closest('.board-cell');
+
+  if (!cellButton) {
+    return null;
+  }
+
+  const row = Number(cellButton.dataset.row);
+  const col = Number(cellButton.dataset.col);
+
+  if (!Number.isInteger(row) || !Number.isInteger(col)) {
+    return null;
+  }
+
+  return { row, col };
+}
+
+function handleLeftClickOnField(event) {
+  const selectedCoordinates = readCellCoordinatesFromEvent(event);
+
+  if (!selectedCoordinates) {
+    return;
+  }
+
+  openCell(
+    selectedCoordinates.row,
+    selectedCoordinates.col,
+    activeGameField,
+    activeGameState,
+  );
+
+  applyGameEndIfNeeded(activeGameState);
+  renderGame(activeGameField, activeGameState);
+}
+
+function handleRightClickOnField(event) {
+  event.preventDefault();
+
+  const selectedCoordinates = readCellCoordinatesFromEvent(event);
+
+  if (!selectedCoordinates) {
+    return;
+  }
+
+  toggleFlag(
+    selectedCoordinates.row,
+    selectedCoordinates.col,
+    activeGameField,
+    activeGameState,
+  );
+
+  renderFlagsCounter(activeGameState);
+  renderPlayingField(activeGameField, activeGameState);
+}
+
+function startNewGameSession() {
+  if (activeGameState) {
+    stopGameTimer(activeGameState, timerAdapter);
+  }
+
+  const nextGame = resetGame();
+
+  activeGameState = nextGame.gameState;
+  activeGameField = nextGame.gameField;
+
+  renderGame(activeGameField, activeGameState);
+  startGameTimer(activeGameState, timerAdapter);
+}
+
+function bindUserEvents() {
+  domElements.playingField.addEventListener('click', handleLeftClickOnField);
+  domElements.playingField.addEventListener('contextmenu', handleRightClickOnField);
+  domElements.restartButton.addEventListener('click', startNewGameSession);
+}
+
+function initializeGame() {
+  bindUserEvents();
+  startNewGameSession();
+}
+
+initializeGame();
+
 const minesweeperApi = {
   CELL_CONTENT,
   CELL_STATE,
@@ -344,4 +581,4 @@ const minesweeperApi = {
   resetGame,
 };
 
-export { minesweeperApi };
+window.minesweeperApi = minesweeperApi;
