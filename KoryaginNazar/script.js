@@ -79,6 +79,7 @@ function createInitialGameState(rows, cols, minesCount) {
     timerId: null,
     flagsPlacedCount: 0,
     explodedMinePosition: null,
+    areMinesPlaced: false,
   };
 
   return initialState;
@@ -189,6 +190,59 @@ function generateField(rows, cols, minesCount) {
     const mineCol = mineCoordinate.col;
 
     field[mineRow][mineCol].type = CELL_CONTENT.MINE;
+  }
+
+  countNeighbourMines(field);
+
+  return field;
+}
+
+function placeMinesAvoidingFirstOpen(field, minesCount, protectedRow, protectedCol) {
+  const rows = field.length;
+  const cols = field[0].length;
+  const totalCellsCount = rows * cols;
+
+  if (minesCount < 0 || minesCount >= totalCellsCount) {
+    throw new RangeError(
+      'minesCount must be greater than or equal to 0 and smaller than total cells count.',
+    );
+  }
+
+  if (minesCount > totalCellsCount - 1) {
+    throw new RangeError(
+      'minesCount is too large for protected first-open cell placement.',
+    );
+  }
+
+  const candidateCoordinates = [];
+
+  for (let row = 0; row < rows; row += 1) {
+    for (let col = 0; col < cols; col += 1) {
+      const currentCell = field[row][col];
+
+      currentCell.type = CELL_CONTENT.EMPTY;
+      currentCell.neighbourMines = 0;
+
+      if (row === protectedRow && col === protectedCol) {
+        continue;
+      }
+
+      candidateCoordinates.push({ row, col });
+    }
+  }
+
+  for (let index = candidateCoordinates.length - 1; index > 0; index -= 1) {
+    const randomIndex = Math.floor(Math.random() * (index + 1));
+    const temporaryCoordinate = candidateCoordinates[index];
+
+    candidateCoordinates[index] = candidateCoordinates[randomIndex];
+    candidateCoordinates[randomIndex] = temporaryCoordinate;
+  }
+
+  for (let mineIndex = 0; mineIndex < minesCount; mineIndex += 1) {
+    const mineCoordinate = candidateCoordinates[mineIndex];
+
+    field[mineCoordinate.row][mineCoordinate.col].type = CELL_CONTENT.MINE;
   }
 
   countNeighbourMines(field);
@@ -369,7 +423,7 @@ function resetGame(
   minesCount = DEFAULT_GAME_CONFIGURATION.minesCount,
 ) {
   const gameState = createInitialGameState(rows, cols, minesCount);
-  const gameField = generateField(rows, cols, minesCount);
+  const gameField = createEmptyField(rows, cols);
 
   return {
     gameState,
@@ -509,6 +563,24 @@ function handleLeftClickOnField(event) {
     return;
   }
 
+  const selectedCell = activeGameField[selectedCoordinates.row][selectedCoordinates.col];
+
+  if (
+    activeGameState.status === GAME_STATUS.PLAYING &&
+    !activeGameState.areMinesPlaced &&
+    selectedCell.state === CELL_STATE.CLOSED
+  ) {
+    placeMinesAvoidingFirstOpen(
+      activeGameField,
+      activeGameState.minesCount,
+      selectedCoordinates.row,
+      selectedCoordinates.col,
+    );
+
+    activeGameState.areMinesPlaced = true;
+    startGameTimer(activeGameState, timerAdapter);
+  }
+
   openCell(
     selectedCoordinates.row,
     selectedCoordinates.col,
@@ -551,7 +623,6 @@ function startNewGameSession() {
   activeGameField = nextGame.gameField;
 
   renderGame(activeGameField, activeGameState);
-  startGameTimer(activeGameState, timerAdapter);
 }
 
 function bindUserEvents() {
