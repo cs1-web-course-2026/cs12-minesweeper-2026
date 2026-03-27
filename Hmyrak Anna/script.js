@@ -125,6 +125,14 @@ function createGame(customConfig = {}) {
     let grid = createEmptyGrid(gameState.rows, gameState.cols);
 
 
+    function stopTimer() {
+        if (gameState.timerId !== null) {
+            clearInterval(gameState.timerId);
+            gameState.timerId = null;
+        }
+    }
+
+
     function resetGridDerivedState() {
         gameState.flagsCount = 0;
         gameState.openedCells = 0;
@@ -132,15 +140,12 @@ function createGame(customConfig = {}) {
 
 
     function resetCellsState() {
-        if (gameState.timerId !== null) {
-            clearInterval(gameState.timerId);
-        }
+        stopTimer();
         gameState.status = GAME_STATUS.PROCESS;
         gameState.gameTime = 0;
         resetGridDerivedState();
         gameState.firstClick = true;
         gameState.started = false;
-        gameState.timerId = null;
         grid = createEmptyGrid(gameState.rows, gameState.cols);
     }
 
@@ -205,14 +210,7 @@ function createGame(customConfig = {}) {
 
     function checkWinCondition() {
         const totalSafeCells = (gameState.rows * gameState.cols) - gameState.minesCount;
-        if (gameState.openedCells === totalSafeCells) {
-            gameState.status = GAME_STATUS.WIN;
-            if (gameState.timerId !== null) {
-                clearInterval(gameState.timerId);
-                gameState.timerId = null;
-            }
-            flagAllMines();
-        }
+        return gameState.openedCells === totalSafeCells;
     }
 
 
@@ -272,16 +270,17 @@ function createGame(customConfig = {}) {
         if (cell.type === CELL_TYPE.MINE) {
             cell.exploded = true;
             gameState.status = GAME_STATUS.LOSE;
-            if (gameState.timerId !== null) {
-                clearInterval(gameState.timerId);
-                gameState.timerId = null;
-            }
+            stopTimer();
             revealAllMines();
             return true;
         }
 
         floodOpen(row, col);
-        checkWinCondition();
+        if (checkWinCondition()) {
+            gameState.status = GAME_STATUS.WIN;
+            stopTimer();
+            flagAllMines();
+        }
         return true;
     }
 
@@ -660,12 +659,12 @@ if (typeof window !== 'undefined' && typeof document !== 'undefined') {
         });
 
         fieldElement.addEventListener('contextmenu', (event) => {
+            event.preventDefault();
+
             const coords = getCellCoordinates(event.target);
             if (!coords) {
                 return;
             }
-
-            event.preventDefault();
 
             toggleFlagAction(coords.row, coords.col);
             moveFocusToCell(coords.row, coords.col);
