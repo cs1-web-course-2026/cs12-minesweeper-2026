@@ -162,13 +162,230 @@ function revealCell(board, row, col) {
 
 ---
 
+## Semantic HTML
+
+Use the correct HTML elements for their intended purpose. Never use generic `<div>` or `<span>`
+elements for interactive controls or landmark regions.
+
+### Structure
+
+Every page must use landmark elements to define its regions:
+
+```html
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Minesweeper</title>
+  </head>
+  <body>
+    <header>
+      <button type="button">Restart</button>
+      <span id="mine-counter">Mines: 10</span>
+      <span id="timer">Time: 0</span>
+    </header>
+    <main>
+      <div id="board"></div>
+      <p id="game-message" role="status" aria-live="polite"></p>
+    </main>
+  </body>
+</html>
+```
+
+### Rules
+
+- Use `<main>` for the primary game area.
+- Use `<header>` for the status bar and control buttons.
+- Use `<button type="button">` for every interactive control — never `<div>`, `<span>`, or
+  `<input type="button">`.
+- Give the page a meaningful `<title>` — never leave it as "Document".
+- The board container in HTML must be **empty** — cells are created dynamically by JavaScript.
+
+---
+
+## Accessibility
+
+All users, including those relying on keyboards and screen readers, must be able to understand
+and interact with the game.
+
+### Required attributes
+
+- Every `<html>` element must have a `lang` attribute:
+  ```html
+  <html lang="en"></html>
+  ```
+- Every `<img>` element must have an `alt` attribute. Use `alt=""` for purely decorative images:
+  ```html
+  <img src="flag.png" alt="Flag" /> <img src="explosion.png" alt="" />
+  <!-- decorative -->
+  ```
+- Every `<button>` without visible text must have `aria-label`:
+  ```html
+  <button type="button" aria-label="Restart game">🔄</button>
+  ```
+
+### Dynamic game feedback
+
+Game status messages (win, loss, mine count changes) must update a DOM element — never use
+`alert()`, `confirm()`, or `prompt()` for game feedback. Use `role="status"` and
+`aria-live="polite"` so screen readers announce the update automatically:
+
+```html
+<p id="game-message" role="status" aria-live="polite"></p>
+```
+
+```js
+// Good — updates the DOM, announced by screen readers
+document.getElementById('game-message').textContent = 'You won!';
+
+// Bad — blocks the UI and is inaccessible
+alert('You won!');
+```
+
+### Cell buttons
+
+Cells created by JavaScript must carry an `aria-label` that describes their current state:
+
+```js
+function createCellButton(row, col) {
+  const button = document.createElement('button');
+
+  button.type = 'button';
+  button.setAttribute(
+    'aria-label',
+    `Row ${row + 1}, column ${col + 1}, closed`,
+  );
+
+  return button;
+}
+```
+
+Update the `aria-label` whenever the cell state changes (opened, flagged, etc.).
+
+---
+
+## CSS Code Quality
+
+CSS values must be as meaningful and maintainable as the JavaScript they style.
+
+### No magic-number font sizes
+
+Never use extreme percentage values for font sizes. Use `rem` or define a CSS custom property:
+
+```css
+/* Bad */
+.cell {
+  font-size: 600%;
+}
+
+/* Good */
+:root {
+  --cell-font-size: 1.5rem;
+}
+
+.cell {
+  font-size: var(--cell-font-size);
+}
+```
+
+### No duplicate declarations
+
+Never declare the same property twice in the same rule block:
+
+```css
+/* Bad */
+#timer {
+  text-align: center;
+  color: white;
+  text-align: center; /* duplicate */
+}
+
+/* Good */
+#timer {
+  text-align: center;
+  color: white;
+}
+```
+
+### Domain values as custom properties
+
+Numeric values that represent domain concepts (board dimensions, mine counts, animation
+durations) belong in CSS custom properties at the top of the file:
+
+```css
+:root {
+  --board-columns: 9;
+  --cell-size: 2.5rem;
+  --animation-duration: 0.3s;
+}
+```
+
+---
+
 ## General Best Practices
 
 - **Pure functions where possible** — avoid side effects inside helpers that compute values.
 - **Single responsibility** — each function should do exactly one thing.
 - **No magic numbers** — define numeric constants (e.g. `const DEFAULT_MINE_COUNT = 10`).
 - **Early returns** — use guard clauses to reduce nesting instead of deeply nested `if/else`.
+- **Cache DOM references** — call `document.querySelector` / `getElementById` once at the top
+  of the file and store the result; never query the DOM inside a function called on every
+  interaction.
 - **Consistent style** — apply all rules above to every file in the project, not just new code.
+
+---
+
+## State Management
+
+All mutable runtime state must live in a single object — never as scattered top-level
+`let` or `var` declarations.
+
+### Pattern
+
+```js
+const gameState = {
+  rows: 9,
+  cols: 9,
+  minesCount: 10,
+  flagsPlaced: 0,
+  status: GAME_STATUS.IDLE,
+  board: [],
+  timerId: null,
+  elapsedSeconds: 0,
+};
+```
+
+### Rules
+
+- Declare one `gameState` object that holds all runtime fields.
+- Reset the game by reassigning the properties of `gameState` (or replacing the object), not
+  by redeclaring new variables.
+- Do not use module-level `let`/`var` globals as a substitute for structured state (e.g.
+  `let isGameRunning = false` scattered next to `let mineCount = 10` is a violation).
+- Pure logic functions receive the state (or slices of it) as parameters — they do not read
+  from `gameState` directly.
+
+### Example
+
+```js
+// Good — all state in one place, reset is explicit
+function resetGame() {
+  gameState.flagsPlaced = 0;
+  gameState.status = GAME_STATUS.IDLE;
+  gameState.board = [];
+  gameState.elapsedSeconds = 0;
+
+  clearInterval(gameState.timerId);
+  gameState.timerId = null;
+}
+
+// Bad — globals scattered across the module
+let isGameRunning = false;
+let flagsPlaced = 0;
+let timerInterval;
+let secondsPassed = 0;
+```
 
 ---
 
