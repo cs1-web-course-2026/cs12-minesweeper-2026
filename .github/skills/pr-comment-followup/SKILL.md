@@ -5,12 +5,15 @@ description: Follows up on existing review comments for one or more pull request
 
 For each PR number provided, fetch all review threads and the current diff, run two classifier sub-agents in parallel to agree on each thread's status, merge their verdicts, then act once per thread.
 
+> **SEQUENTIAL PROCESSING REQUIRED:** Process PRs **one at a time, strictly in order**. Do **not** start any work on PR N+1 until all steps (1–5) for PR N are fully complete and confirmed. This prevents race conditions and mixed-up comments across PRs.
+
 ## Important constraints
 
 - **Do NOT use `gh pr checkout` or `git checkout`.** All PR data is fetched via the GitHub API only.
 - **Do NOT create any files** in the repository.
 - **Do NOT use any persistent todo store.** Track progress in memory only.
 - **Do NOT stash or modify the working tree.**
+- **Do NOT analyze, interpret, or classify thread content in the orchestrator.** Step 1 is mechanical data collection only — fetch raw data and pass it verbatim to the classifier sub-agents. Any reasoning about what the diff means, what threads are about, or what verdict is likely must happen exclusively inside the classifier sub-agents, never in the orchestrator. If you notice yourself writing observations like "these comments are about JavaScript that was removed" — stop. That is the classifiers' job.
 
 ## Input
 
@@ -20,7 +23,7 @@ You will receive a list of PR numbers. Examples:
 - `Check review comments on PRs 3, 7 and 12`
 - `Triage review threads for pull requests 1, 2, 3`
 
-Parse all PR numbers from the user's message. Process each PR **sequentially**.
+Parse all PR numbers from the user's message. Build an ordered list and process them **one by one** — fully complete the entire pipeline for the first PR before touching the second, and so on.
 
 ## One-time setup (run once before processing any PRs)
 
@@ -38,25 +41,28 @@ git fetch origin
 
 ## Process per PR
 
-> **Strict sequencing rule:** Complete every step for the current PR before moving to the next.
+> **Strict sequencing rule:** Complete **all five steps** (fetch → classify → merge → act → verify) for the current PR before starting Step 1 of the next PR. Never interleave work across PRs.
 
 ### Step 1 — Fetch PR metadata, diff, and review threads
 
-Run in parallel:
+> **Orchestrator discipline:** Collect and store the raw data below. Do not interpret it. After Step 1 your only allowed output is a short status line such as: `Fetched PR {pr_number}: {title}. {N} review threads found. Running classifiers.`
+
+Run in parallel (pipe all commands through `| cat` to suppress pager output):
 
 ```bash
-gh api /repos/{owner}/{repo}/pulls/{pr_number}
-gh api /repos/{owner}/{repo}/pulls/{pr_number} --header "Accept: application/vnd.github.v3.diff"
+gh api /repos/{owner}/{repo}/pulls/{pr_number} | cat
+gh api /repos/{owner}/{repo}/pulls/{pr_number} --header "Accept: application/vnd.github.v3.diff" | cat
 ```
 
-Then fetch all review threads via GraphQL:
+Then fetch all review threads via GraphQL (use `--paginate` to handle PRs with many threads):
 
 ```bash
-gh api graphql -f query='
-  query($owner: String!, $repo: String!, $number: Int!) {
+gh api graphql --paginate -f query='
+  query($owner: String!, $repo: String!, $number: Int!, $endCursor: String) {
     repository(owner: $owner, name: $repo) {
       pullRequest(number: $number) {
-        reviewThreads(first: 100) {
+        reviewThreads(first: 100, after: $endCursor) {
+          pageInfo { hasNextPage endCursor }
           nodes {
             id
             isResolved
@@ -75,7 +81,7 @@ gh api graphql -f query='
       }
     }
   }
-' -f owner="{owner}" -f repo="{repo}" -F number={pr_number}
+' -f owner="{owner}" -f repo="{repo}" -F number={pr_number} | cat
 ```
 
 Record: `head_sha`, unified diff text, and the full list of review threads (each with its GraphQL `id`, `isResolved` flag, and all comment bodies).
@@ -101,7 +107,7 @@ Pass the same inputs to both:
 - The full thread list: each thread's `id`, `isResolved`, all comment bodies, `path`, `line`
 - `owner` and `repo`
 
-The sub-agents are responsible for all code analysis and classification — the orchestrator only forwards the raw data.
+The sub-agents are responsible for all code analysis and classification — the orchestrator only forwards the raw data. Do **not** pre-screen, filter, or hint at likely verdicts in the prompt you send to the classifiers. Pass the diff and thread list as-is.
 
 Invoke in parallel:
 
