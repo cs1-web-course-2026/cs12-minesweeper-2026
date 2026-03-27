@@ -23,17 +23,15 @@ Each thread in the thread list payload has this shape:
 
 ```json
 {
-  "thread_node_id": "<GraphQL node id>",
-  "is_outdated": true | false,
+  "thread_node_id": "<GraphQL id (the `id` field from reviewThreads)",
   "is_resolved": true | false,
-  "first_comment_database_id": 12345,
-  "first_comment_body": "<body>",
+  "comment_bodies": ["<first comment body>", "<reply 1 body>", "..."],
   "path": "<file path>",
-  "line": 42,
-  "has_developer_reply": true | false,
-  "last_skill_reply_prefix": "✅" | "⚠️" | "👎" | null
+  "line": 42
 }
 ```
+
+`comment_bodies[0]` is always the original review comment. Subsequent entries are replies. Read the full thread to understand the context and any developer responses.
 
 ## Your task
 

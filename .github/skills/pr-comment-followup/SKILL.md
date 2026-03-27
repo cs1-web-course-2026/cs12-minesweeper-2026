@@ -82,28 +82,35 @@ Record: `head_sha`, unified diff text, and the full list of review threads (each
 
 Discard threads that have zero comments. If there are no review threads, skip to the final report for this PR.
 
-### Step 2 — Run Claude Sonnet 4.6 classifier sub-agent
+**Forgot-to-push flag:** For each thread that is **not resolved** (`isResolved: false`), scan all replies (comments after the first) for messages from the PR author that contain any of the following words or phrases (case-insensitive):
 
-**Wait for Step 1 to finish.**
+```
+fixed, fix, done, готово, зроблено, виправив, виправила, виправлено, зробив, зробила, вже, already, changed, updated, added, pushed
+```
 
-Invoke the `pr-comment-classifier-claude` sub-agent, passing:
+If at least one such reply exists, set `author_claims_fixed: true` for that thread. Otherwise set `author_claims_fixed: false`. Store this flag alongside each thread.
+
+### Step 2 — Run both classifier sub-agents in parallel
+
+**Wait for Step 1 to finish, then invoke both sub-agents simultaneously — do NOT wait for one before starting the other.**
+
+Pass the same inputs to both:
 
 - PR number
-- The full unified diff text
-- The list of review threads (thread `id`, `isResolved`, all comment bodies, `path`, `line`)
+- The full unified diff text (raw, unprocessed)
+- The full thread list: each thread's `id`, `isResolved`, all comment bodies, `path`, `line`
 - `owner` and `repo`
 
-**Wait for the sub-agent to return its full JSON response before proceeding to Step 3.**
+The sub-agents are responsible for all code analysis and classification — the orchestrator only forwards the raw data.
 
-### Step 3 — Run GPT-5.3-Codex classifier sub-agent
+Invoke in parallel:
 
-**Wait for Step 2 to finish.**
+- `pr-comment-classifier-claude`
+- `pr-comment-classifier-codex`
 
-Invoke the `pr-comment-classifier-codex` sub-agent with the same inputs.
+**Wait for BOTH sub-agents to return their full JSON responses before proceeding to Step 3.**
 
-**Wait for the sub-agent to return its full JSON response before proceeding to Step 4.**
-
-### Step 4 — Merge verdicts with conservative tie-breaking
+### Step 3 — Merge verdicts with conservative tie-breaking
 
 For each thread, combine the two verdicts using this priority order (most conservative wins):
 
@@ -117,7 +124,7 @@ For each thread, combine the two verdicts using this priority order (most conser
 
 Rule: `NOT_FIXED` beats everything; `NOT_APPLICABLE` beats `FIXED`; `FIXED` only when both agree.
 
-### Step 5 — Act on each thread
+### Step 4 — Act on each thread
 
 For each thread, take exactly one action based on the merged verdict:
 
@@ -168,7 +175,13 @@ gh api graphql -f query='
 ' -f threadId="{thread.id}"
 ```
 
-If the thread is **not resolved**: post a reply only (no resolve/unresolve).
+If the thread is **not resolved and `author_claims_fixed` is `true`**: the student replied claiming the fix is done but the diff does not confirm it — they likely forgot to commit or push. Post this reply:
+
+```
+⚠️ **[AI Generated] Looks like the fix wasn't pushed** — You mentioned this was addressed, but the current diff doesn't reflect the change yet. Please make sure you've committed and pushed your latest changes, then re-request a review.
+```
+
+If the thread is **not resolved and `author_claims_fixed` is `false`**: post a standard reply only (no resolve/unresolve).
 
 **Reply body:**
 
@@ -255,6 +268,10 @@ Thread 1 — "Use CELL_STATE enum instead of raw strings..."
 Thread 2 — "Missing return statement in revealCell"
   Claude: not_fixed  ·  Codex: not_fixed  →  **not_fixed**
   ⚠️ Unresolved + commented
+
+Thread 2b — "Single-letter variable 'i' in loop" [author claimed fixed]
+  Claude: not_fixed  ·  Codex: not_fixed  →  **not_fixed** _(forgot to push?)_
+  ⚠️ Warned about missing push
 
 Thread 3 — "Outdated concern about variable naming"
   Claude: not_relevant  ·  Codex: not_relevant  →  **not_relevant**
