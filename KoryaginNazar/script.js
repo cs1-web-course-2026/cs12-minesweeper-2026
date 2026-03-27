@@ -24,8 +24,6 @@ const DEFAULT_GAME_CONFIGURATION = {
   minesCount: 15,
 };
 
-const BOARD_CELL_SIZE = 40;
-
 const UI_TEXT = {
   STARTED: 'Гра розпочалась',
   WON: 'Перемога! Всі безпечні клітинки відкриті.',
@@ -205,12 +203,6 @@ function placeMinesAvoidingFirstOpen(field, minesCount, protectedRow, protectedC
   if (minesCount < 0 || minesCount >= totalCellsCount) {
     throw new RangeError(
       'minesCount must be greater than or equal to 0 and smaller than total cells count.',
-    );
-  }
-
-  if (minesCount > totalCellsCount - 1) {
-    throw new RangeError(
-      'minesCount is too large for protected first-open cell placement.',
     );
   }
 
@@ -482,10 +474,30 @@ function getCellClassNames(row, col, currentCell, currentGameState) {
   return classNames;
 }
 
+function getCellAriaLabel(currentCell) {
+  if (currentCell.state === CELL_STATE.CLOSED) {
+    return 'Closed cell';
+  }
+
+  if (currentCell.state === CELL_STATE.FLAGGED) {
+    return 'Flagged cell';
+  }
+
+  if (currentCell.type === CELL_CONTENT.MINE) {
+    return 'Opened mine';
+  }
+
+  if (currentCell.neighbourMines > 0) {
+    return `Opened cell, adjacent mines: ${currentCell.neighbourMines}`;
+  }
+
+  return 'Opened empty cell';
+}
+
 function renderPlayingField(currentField, currentGameState) {
   const boardFragment = document.createDocumentFragment();
 
-  domElements.playingField.style.gridTemplateColumns = `repeat(${currentGameState.cols}, ${BOARD_CELL_SIZE}px)`;
+  domElements.playingField.style.gridTemplateColumns = `repeat(${currentGameState.cols}, var(--board-cell-size))`;
 
   for (let row = 0; row < currentField.length; row += 1) {
     for (let col = 0; col < currentField[row].length; col += 1) {
@@ -493,10 +505,18 @@ function renderPlayingField(currentField, currentGameState) {
       const cellButton = document.createElement('button');
 
       cellButton.type = 'button';
-      cellButton.setAttribute('aria-label', `Board cell ${row}-${col}`);
+      cellButton.setAttribute(
+        'aria-label',
+        `Board cell ${row + 1}-${col + 1}. ${getCellAriaLabel(currentCell)}`,
+      );
       cellButton.dataset.row = String(row);
       cellButton.dataset.col = String(col);
-      cellButton.className = getCellClassNames(row, col, currentCell, currentGameState).join(' ');
+      cellButton.className = getCellClassNames(
+        row,
+        col,
+        currentCell,
+        currentGameState,
+      ).join(' ');
 
       boardFragment.append(cellButton);
     }
@@ -601,12 +621,16 @@ function handleRightClickOnField(event) {
     return;
   }
 
-  toggleFlag(
+  const isCellUpdated = toggleFlag(
     selectedCoordinates.row,
     selectedCoordinates.col,
     activeGameField,
     activeGameState,
   );
+
+  if (!isCellUpdated) {
+    return;
+  }
 
   renderFlagsCounter(activeGameState);
   renderPlayingField(activeGameField, activeGameState);

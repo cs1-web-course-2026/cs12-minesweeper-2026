@@ -2,6 +2,10 @@
   box-sizing: border-box;
 }
 
+:root {
+  --board-cell-size: 40px;
+}
+
 body {
   min-height: 100vh;
   margin: 0;
@@ -80,8 +84,8 @@ body {
 }
 
 .board-cell {
-  width: 40px;
-  height: 40px;
+  width: var(--board-cell-size);
+  height: var(--board-cell-size);
   font-size: 24px;
   font-weight: 700;
   display: flex;
@@ -166,6 +170,10 @@ body {
 }
 
 @media (max-width: 540px) {
+  :root {
+    --board-cell-size: 34px;
+  }
+
   body {
     align-items: flex-start;
     padding: 14px;
@@ -177,8 +185,6 @@ body {
   }
 
   .board-cell {
-    width: 34px;
-    height: 34px;
     font-size: 20px;
   }
 }
