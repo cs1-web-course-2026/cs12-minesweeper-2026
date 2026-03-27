@@ -476,22 +476,22 @@ function getCellClassNames(row, col, currentCell, currentGameState) {
 
 function getCellAriaLabel(currentCell) {
   if (currentCell.state === CELL_STATE.CLOSED) {
-    return 'Closed cell';
+    return 'Закрита клітинка';
   }
 
   if (currentCell.state === CELL_STATE.FLAGGED) {
-    return 'Flagged cell';
+    return 'Клітинка з прапорцем';
   }
 
   if (currentCell.type === CELL_CONTENT.MINE) {
-    return 'Opened mine';
+    return 'Відкрита міна';
   }
 
   if (currentCell.neighbourMines > 0) {
-    return `Opened cell, adjacent mines: ${currentCell.neighbourMines}`;
+    return `Відкрита клітинка, сусідніх мін: ${currentCell.neighbourMines}`;
   }
 
-  return 'Opened empty cell';
+  return 'Відкрита порожня клітинка';
 }
 
 function renderPlayingField(currentField, currentGameState) {
@@ -507,7 +507,7 @@ function renderPlayingField(currentField, currentGameState) {
       cellButton.type = 'button';
       cellButton.setAttribute(
         'aria-label',
-        `Board cell ${row + 1}-${col + 1}. ${getCellAriaLabel(currentCell)}`,
+        `Клітинка ${row + 1}-${col + 1}. ${getCellAriaLabel(currentCell)}`,
       );
       cellButton.dataset.row = String(row);
       cellButton.dataset.col = String(col);
