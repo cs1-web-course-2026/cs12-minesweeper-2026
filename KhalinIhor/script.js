@@ -1,15 +1,16 @@
 'use strict';
 
 const CELL_STATE = Object.freeze({
+  OPEN: 'open',
   CLOSED: 'closed',
-  OPENED: 'opened',
   FLAGGED: 'flagged'
 });
 
 const GAME_STATUS = Object.freeze({
-  PROCESS: 'process',
-  WIN: 'win',
-  LOSE: 'lose'
+  IDLE: 'idle',
+  PLAYING: 'playing',
+  WON: 'won',
+  LOST: 'lost'
 });
 
 const CELL_CONTENT = Object.freeze({
@@ -21,7 +22,8 @@ const gameState = {
   rows: 10,
   cols: 10,
   minesCount: 15,
-  status: GAME_STATUS.PROCESS,
+  flagsPlaced: 0,
+  status: GAME_STATUS.IDLE,
   gameTime: 0,
   timerId: null,
   explodedCell: null,
@@ -65,12 +67,12 @@ function countMinesInField(field) {
   return mines;
 }
 
-function countFlaggedCells() {
+function countFlaggedCells(field) {
   let flags = 0;
 
-  for (let row = 0; row < gameState.rows; row += 1) {
-    for (let col = 0; col < gameState.cols; col += 1) {
-      if (gameState.field[row][col].state === CELL_STATE.FLAGGED) {
+  for (let row = 0; row < field.length; row += 1) {
+    for (let col = 0; col < (field[row]?.length ?? 0); col += 1) {
+      if (field[row][col].state === CELL_STATE.FLAGGED) {
         flags += 1;
       }
     }
@@ -80,7 +82,7 @@ function countFlaggedCells() {
 }
 
 function getFlagsLeft() {
-  return gameState.minesCount - countFlaggedCells();
+  return gameState.minesCount - gameState.flagsPlaced;
 }
 
 function formatCounter(value) {
@@ -121,7 +123,8 @@ function setField(field) {
   gameState.rows = field.length;
   gameState.cols = field[0]?.length ?? 0;
   gameState.minesCount = countMinesInField(field);
-  gameState.status = GAME_STATUS.PROCESS;
+  gameState.flagsPlaced = countFlaggedCells(field);
+  gameState.status = GAME_STATUS.PLAYING;
   gameState.gameTime = 0;
   gameState.explodedCell = null;
 
@@ -184,14 +187,14 @@ function checkWinCondition() {
   for (let row = 0; row < gameState.rows; row += 1) {
     for (let col = 0; col < gameState.cols; col += 1) {
       const cell = gameState.field[row][col];
-      if (cell.type !== CELL_CONTENT.MINE && cell.state === CELL_STATE.OPENED) {
+      if (cell.type !== CELL_CONTENT.MINE && cell.state === CELL_STATE.OPEN) {
         openedSafeCells += 1;
       }
     }
   }
 
   if (openedSafeCells === safeCells) {
-    gameState.status = GAME_STATUS.WIN;
+    gameState.status = GAME_STATUS.WON;
     stopTimer();
   }
 }
@@ -203,14 +206,14 @@ function openCellRecursive(row, col) {
 
   const cell = gameState.field[row][col];
 
-  if (cell.state === CELL_STATE.OPENED || cell.state === CELL_STATE.FLAGGED) {
+  if (cell.state === CELL_STATE.OPEN || cell.state === CELL_STATE.FLAGGED) {
     return;
   }
 
-  cell.state = CELL_STATE.OPENED;
+  cell.state = CELL_STATE.OPEN;
 
   if (cell.type === CELL_CONTENT.MINE) {
-    gameState.status = GAME_STATUS.LOSE;
+    gameState.status = GAME_STATUS.LOST;
     gameState.explodedCell = { row, col };
     stopTimer();
     return;
@@ -224,12 +227,12 @@ function openCellRecursive(row, col) {
 }
 
 function openCell(row, col) {
-  if (gameState.status !== GAME_STATUS.PROCESS || !isInsideBoard(row, col)) {
+  if (gameState.status !== GAME_STATUS.PLAYING || !isInsideBoard(row, col)) {
     return;
   }
 
   const cell = gameState.field[row][col];
-  if (cell.state === CELL_STATE.OPENED || cell.state === CELL_STATE.FLAGGED) {
+  if (cell.state === CELL_STATE.OPEN || cell.state === CELL_STATE.FLAGGED) {
     return;
   }
 
@@ -239,18 +242,18 @@ function openCell(row, col) {
 
   openCellRecursive(row, col);
 
-  if (gameState.status === GAME_STATUS.PROCESS) {
+  if (gameState.status === GAME_STATUS.PLAYING) {
     checkWinCondition();
   }
 }
 
 function toggleFlag(row, col) {
-  if (gameState.status !== GAME_STATUS.PROCESS || !isInsideBoard(row, col)) {
+  if (gameState.status !== GAME_STATUS.PLAYING || !isInsideBoard(row, col)) {
     return;
   }
 
   const cell = gameState.field[row][col];
-  if (cell.state === CELL_STATE.OPENED) {
+  if (cell.state === CELL_STATE.OPEN) {
     return;
   }
 
@@ -263,33 +266,42 @@ function toggleFlag(row, col) {
       return;
     }
     cell.state = CELL_STATE.FLAGGED;
+    gameState.flagsPlaced += 1;
   } else if (cell.state === CELL_STATE.FLAGGED) {
     cell.state = CELL_STATE.CLOSED;
+    gameState.flagsPlaced -= 1;
   }
 }
 
 function applyCellClasses(button, cell, row, col) {
-  const isGameOver = gameState.status !== GAME_STATUS.PROCESS;
+  const isGameOver = gameState.status !== GAME_STATUS.PLAYING;
+  const coordinatesLabel = `Row ${row + 1}, column ${col + 1}`;
   const isExploded =
     gameState.explodedCell !== null &&
     gameState.explodedCell.row === row &&
     gameState.explodedCell.col === col;
 
-  if (cell.state === CELL_STATE.OPENED) {
+  if (cell.state === CELL_STATE.OPEN) {
     button.classList.add('cell--open');
 
     if (cell.type === CELL_CONTENT.MINE) {
       button.classList.add(isExploded ? 'cell--mine-hit' : 'cell--mine');
-      button.setAttribute('aria-label', isExploded ? 'Підірвана міна' : 'Відкрита міна');
+      button.setAttribute(
+        'aria-label',
+        `${coordinatesLabel}, ${isExploded ? 'open, exploded mine' : 'open, mine'}`
+      );
       return;
     }
 
     if (cell.neighbourMines > 0) {
       button.classList.add(`cell--n${cell.neighbourMines}`);
       button.textContent = String(cell.neighbourMines);
-      button.setAttribute('aria-label', `Відкрита клітинка з числом ${cell.neighbourMines}`);
+      button.setAttribute(
+        'aria-label',
+        `${coordinatesLabel}, open, ${cell.neighbourMines} neighboring mines`
+      );
     } else {
-      button.setAttribute('aria-label', 'Відкрита порожня клітинка');
+      button.setAttribute('aria-label', `${coordinatesLabel}, open`);
     }
     return;
   }
@@ -301,18 +313,18 @@ function applyCellClasses(button, cell, row, col) {
     if (isGameOver) {
       button.classList.add(cell.type === CELL_CONTENT.MINE ? 'cell--mine' : 'cell--wrong');
     }
-    button.setAttribute('aria-label', 'Клітинка з прапорцем');
+    button.setAttribute('aria-label', `${coordinatesLabel}, flagged`);
     return;
   }
 
   if (isGameOver && cell.type === CELL_CONTENT.MINE) {
     button.classList.remove('cell--closed');
     button.classList.add('cell--open', 'cell--mine');
-    button.setAttribute('aria-label', 'Відкрита міна');
+    button.setAttribute('aria-label', `${coordinatesLabel}, open`);
     return;
   }
 
-  button.setAttribute('aria-label', 'Закрита клітинка');
+  button.setAttribute('aria-label', `${coordinatesLabel}, closed`);
 }
 
 function renderBoard() {
@@ -330,7 +342,7 @@ function renderBoard() {
 
       applyCellClasses(button, cell, row, col);
 
-      if (cell.state === CELL_STATE.OPENED || gameState.status !== GAME_STATUS.PROCESS) {
+      if (cell.state === CELL_STATE.OPEN || gameState.status !== GAME_STATUS.PLAYING) {
         button.disabled = true;
       }
 
@@ -349,19 +361,19 @@ function renderIndicators() {
 function renderMessage() {
   dom.message.classList.remove('game-message--win', 'game-message--lose');
 
-  if (gameState.status === GAME_STATUS.WIN) {
+  if (gameState.status === GAME_STATUS.WON) {
     dom.message.textContent = 'Перемога! Усі безпечні клітинки відкрито.';
     dom.message.classList.add('game-message--win');
     return;
   }
 
-  if (gameState.status === GAME_STATUS.LOSE) {
+  if (gameState.status === GAME_STATUS.LOST) {
     dom.message.textContent = 'Поразка! Ви підірвалися на міні.';
     dom.message.classList.add('game-message--lose');
     return;
   }
 
-  dom.message.textContent = ' ';
+  dom.message.textContent = '';
 }
 
 function renderGame() {
