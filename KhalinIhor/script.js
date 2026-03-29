@@ -275,7 +275,7 @@ function toggleFlag(row, col) {
 
 function applyCellClasses(button, cell, row, col) {
   const isGameOver = gameState.status !== GAME_STATUS.PLAYING;
-  const coordinatesLabel = `Row ${row + 1}, column ${col + 1}`;
+  const coordinatesLabel = `Рядок ${row + 1}, стовпець ${col + 1}`;
   const isExploded =
     gameState.explodedCell !== null &&
     gameState.explodedCell.row === row &&
@@ -288,7 +288,7 @@ function applyCellClasses(button, cell, row, col) {
       button.classList.add(isExploded ? 'cell--mine-hit' : 'cell--mine');
       button.setAttribute(
         'aria-label',
-        `${coordinatesLabel}, ${isExploded ? 'open, exploded mine' : 'open, mine'}`
+        `${coordinatesLabel}, ${isExploded ? 'відкрита, підірвана міна' : 'відкрита, міна'}`
       );
       return;
     }
@@ -298,10 +298,10 @@ function applyCellClasses(button, cell, row, col) {
       button.textContent = String(cell.neighbourMines);
       button.setAttribute(
         'aria-label',
-        `${coordinatesLabel}, open, ${cell.neighbourMines} neighboring mines`
+        `${coordinatesLabel}, відкрита, сусідніх мін: ${cell.neighbourMines}`
       );
     } else {
-      button.setAttribute('aria-label', `${coordinatesLabel}, open`);
+      button.setAttribute('aria-label', `${coordinatesLabel}, відкрита`);
     }
     return;
   }
@@ -313,18 +313,18 @@ function applyCellClasses(button, cell, row, col) {
     if (isGameOver) {
       button.classList.add(cell.type === CELL_CONTENT.MINE ? 'cell--mine' : 'cell--wrong');
     }
-    button.setAttribute('aria-label', `${coordinatesLabel}, flagged`);
+    button.setAttribute('aria-label', `${coordinatesLabel}, позначена прапорцем`);
     return;
   }
 
   if (isGameOver && cell.type === CELL_CONTENT.MINE) {
     button.classList.remove('cell--closed');
     button.classList.add('cell--open', 'cell--mine');
-    button.setAttribute('aria-label', `${coordinatesLabel}, open`);
+    button.setAttribute('aria-label', `${coordinatesLabel}, відкрита, міна`);
     return;
   }
 
-  button.setAttribute('aria-label', `${coordinatesLabel}, closed`);
+  button.setAttribute('aria-label', `${coordinatesLabel}, закрита`);
 }
 
 function renderBoard() {
