@@ -397,8 +397,10 @@ if (typeof window !== 'undefined' && typeof document !== 'undefined') {
 
         const game = createGame();
         const cellElements = [];
-        const currentFocus = { row: 0, col: 0 };
-        let headerIntervalId = null;
+        const uiState = {
+            headerIntervalId: null,
+            currentFocus: { row: 0, col: 0 }
+        };
 
         function formatCounter(value) {
             const numericValue = Number.isFinite(value) ? Math.floor(value) : 0;
@@ -482,7 +484,7 @@ if (typeof window !== 'undefined' && typeof document !== 'undefined') {
                     cellElement.setAttribute('role', 'gridcell');
                     cellElement.setAttribute('aria-rowindex', String(row + 1));
                     cellElement.setAttribute('aria-colindex', String(col + 1));
-                    cellElement.setAttribute('tabindex', row === currentFocus.row && col === currentFocus.col ? '0' : '-1');
+                    cellElement.setAttribute('tabindex', row === uiState.currentFocus.row && col === uiState.currentFocus.col ? '0' : '-1');
                     cellElement.setAttribute('aria-label', 'Row ' + (row + 1) + ', column ' + (col + 1) + '. Closed cell.');
 
                     rowElement.appendChild(cellElement);
@@ -502,24 +504,24 @@ if (typeof window !== 'undefined' && typeof document !== 'undefined') {
                 return;
             }
 
-            const previousCell = cellElements[currentFocus.row] && cellElements[currentFocus.row][currentFocus.col];
+            const previousCell = cellElements[uiState.currentFocus.row] && cellElements[uiState.currentFocus.row][uiState.currentFocus.col];
 
             if (previousCell && previousCell !== targetCell) {
                 previousCell.setAttribute('tabindex', '-1');
             }
 
-            currentFocus.row = row;
-            currentFocus.col = col;
+            uiState.currentFocus.row = row;
+            uiState.currentFocus.col = col;
             targetCell.setAttribute('tabindex', '0');
             targetCell.focus();
         }
 
         function startHeaderSync() {
-            if (headerIntervalId !== null) {
+            if (uiState.headerIntervalId !== null) {
                 return;
             }
 
-            headerIntervalId = setInterval(() => {
+            uiState.headerIntervalId = setInterval(() => {
                 const state = game.getState();
                 if (state.status === GAME_STATUS.PROCESS && state.started) {
                     renderHeader();
@@ -528,9 +530,9 @@ if (typeof window !== 'undefined' && typeof document !== 'undefined') {
         }
 
         function stopHeaderSync() {
-            if (headerIntervalId !== null) {
-                clearInterval(headerIntervalId);
-                headerIntervalId = null;
+            if (uiState.headerIntervalId !== null) {
+                clearInterval(uiState.headerIntervalId);
+                uiState.headerIntervalId = null;
             }
         }
 
@@ -560,7 +562,7 @@ if (typeof window !== 'undefined' && typeof document !== 'undefined') {
             timerCounterElement.textContent = formatCounter(state.gameTime);
             minesCounterElement.textContent = formatCounter(state.minesLeft);
 
-            if (state.status === GAME_STATUS.PROCESS) {
+            if (state.status === GAME_STATUS.PROCESS && state.started) {
                 startHeaderSync();
             } else {
                 stopHeaderSync();
@@ -614,14 +616,14 @@ if (typeof window !== 'undefined' && typeof document !== 'undefined') {
 
         function getCurrentFocusCoordinates() {
             if (
-                typeof currentFocus.row === 'number' &&
-                typeof currentFocus.col === 'number' &&
-                currentFocus.row >= 0 &&
-                currentFocus.col >= 0 &&
-                currentFocus.row < cellElements.length &&
-                currentFocus.col < cellElements[0].length
+                typeof uiState.currentFocus.row === 'number' &&
+                typeof uiState.currentFocus.col === 'number' &&
+                uiState.currentFocus.row >= 0 &&
+                uiState.currentFocus.col >= 0 &&
+                uiState.currentFocus.row < cellElements.length &&
+                uiState.currentFocus.col < cellElements[0].length
             ) {
-                return { row: currentFocus.row, col: currentFocus.col };
+                return { row: uiState.currentFocus.row, col: uiState.currentFocus.col };
             }
 
             return null;
@@ -629,16 +631,16 @@ if (typeof window !== 'undefined' && typeof document !== 'undefined') {
 
         function resetGame() {
             game.initGame();
-            startHeaderSync();
+            stopHeaderSync();
 
             const state = game.getState();
             const shouldRebuild =
                 cellElements.length !== state.rows ||
                 (cellElements[0] && cellElements[0].length !== state.cols);
 
-            if (currentFocus.row >= state.rows || currentFocus.col >= state.cols) {
-                currentFocus.row = 0;
-                currentFocus.col = 0;
+            if (uiState.currentFocus.row >= state.rows || uiState.currentFocus.col >= state.cols) {
+                uiState.currentFocus.row = 0;
+                uiState.currentFocus.col = 0;
             }
 
             if (shouldRebuild) {
@@ -714,12 +716,6 @@ if (typeof window !== 'undefined' && typeof document !== 'undefined') {
 
         restartButton.addEventListener('click', resetGame);
         faceButton.addEventListener('click', resetGame);
-        faceButton.addEventListener('keydown', (event) => {
-            if (event.key === 'Enter' || event.key === ' ') {
-                event.preventDefault();
-                resetGame();
-            }
-        });
 
         window.addEventListener('beforeunload', stopHeaderSync, { once: true });
 

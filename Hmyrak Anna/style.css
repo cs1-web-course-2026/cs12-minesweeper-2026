@@ -80,19 +80,37 @@ body {
 }
 
 
+.face-btn{
+    appearance: none;
+    -webkit-appearance: none;
+    width: 46px;
+    height: 46px;
+    padding: 0;
+    margin: 0 6px;
+    border: 0;
+    background: transparent;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex: 0 0 auto;
+    line-height: 1;
+    cursor: pointer;
+}
+
+
 .face-btn::before{
     content: '😊';
-    cursor: pointer;
     font-size: 28px;
-    width: 40px;
-    height: 40px;
+    width: 100%;
+    height: 100%;
     background-color: var(--main-color);
     border: 3px solid;
     border-color: var(--border-color);
     display: flex;
     justify-content: center;
     align-items: center;
-    margin: 0px 15px;
+    margin: 0;
+    box-sizing: border-box;
 }
 
 
@@ -143,8 +161,6 @@ body {
     flex: 0 0 auto;
     padding: 0;
     margin: 0;
-    border: 0;
-    border-radius: 0;
     font: inherit;
     color: inherit;
     line-height: 1;
