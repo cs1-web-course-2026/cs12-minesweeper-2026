@@ -1,4 +1,4 @@
-﻿<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="uk">
 <head>
   <meta charset="UTF-8">
@@ -33,114 +33,14 @@
   <main class="play-area">
     <section class="board-shell" aria-label="Game area">
       <div class="board-toolbar">
-        <span class="status-pill" id="status-text" data-status="playing">In progress</span>
+        <span class="status-pill" id="status-text" role="status" aria-live="polite" data-status="playing">In progress</span>
         <span class="board-meta" id="board-meta">10x10 - 15 mines</span>
       </div>
 
-      <section class="board" id="board" style="--cols:10" aria-label="Minesweeper board 10 by 10">
-        <button class="cell" type="button" data-surface="closed" data-kind="empty" data-count="0" aria-label="Closed cell"></button>
-        <button class="cell" type="button" data-surface="closed" data-kind="empty" data-count="0" aria-label="Closed cell"></button>
-        <button class="cell" type="button" data-surface="closed" data-kind="empty" data-count="0" aria-label="Closed cell"></button>
-        <button class="cell" type="button" data-surface="closed" data-kind="empty" data-count="0" aria-label="Closed cell"></button>
-        <button class="cell" type="button" data-surface="closed" data-kind="empty" data-count="0" aria-label="Closed cell"></button>
-        <button class="cell" type="button" data-surface="closed" data-kind="empty" data-count="0" aria-label="Closed cell"></button>
-        <button class="cell" type="button" data-surface="closed" data-kind="empty" data-count="0" aria-label="Closed cell"></button>
-        <button class="cell" type="button" data-surface="closed" data-kind="empty" data-count="0" aria-label="Closed cell"></button>
-        <button class="cell" type="button" data-surface="closed" data-kind="empty" data-count="0" aria-label="Closed cell"></button>
-        <button class="cell" type="button" data-surface="closed" data-kind="empty" data-count="0" aria-label="Closed cell"></button>
-        <button class="cell" type="button" data-surface="closed" data-kind="empty" data-count="0" aria-label="Closed cell"></button>
-        <button class="cell" type="button" data-surface="closed" data-kind="empty" data-count="0" aria-label="Closed cell"></button>
-        <button class="cell" type="button" data-surface="closed" data-kind="empty" data-count="0" aria-label="Closed cell"></button>
-        <button class="cell" type="button" data-surface="closed" data-kind="empty" data-count="0" aria-label="Closed cell"></button>
-        <button class="cell" type="button" data-surface="closed" data-kind="empty" data-count="0" aria-label="Closed cell"></button>
-        <button class="cell" type="button" data-surface="closed" data-kind="empty" data-count="0" aria-label="Closed cell"></button>
-        <button class="cell" type="button" data-surface="closed" data-kind="empty" data-count="0" aria-label="Closed cell"></button>
-        <button class="cell" type="button" data-surface="closed" data-kind="empty" data-count="0" aria-label="Closed cell"></button>
-        <button class="cell" type="button" data-surface="closed" data-kind="empty" data-count="0" aria-label="Closed cell"></button>
-        <button class="cell" type="button" data-surface="closed" data-kind="empty" data-count="0" aria-label="Closed cell"></button>
-        <button class="cell" type="button" data-surface="closed" data-kind="empty" data-count="0" aria-label="Closed cell"></button>
-        <button class="cell" type="button" data-surface="closed" data-kind="empty" data-count="0" aria-label="Closed cell"></button>
-        <button class="cell" type="button" data-surface="closed" data-kind="empty" data-count="0" aria-label="Closed cell"></button>
-        <button class="cell" type="button" data-surface="closed" data-kind="empty" data-count="0" aria-label="Closed cell"></button>
-        <button class="cell" type="button" data-surface="closed" data-kind="empty" data-count="0" aria-label="Closed cell"></button>
-        <button class="cell" type="button" data-surface="closed" data-kind="empty" data-count="0" aria-label="Closed cell"></button>
-        <button class="cell" type="button" data-surface="closed" data-kind="empty" data-count="0" aria-label="Closed cell"></button>
-        <button class="cell" type="button" data-surface="closed" data-kind="empty" data-count="0" aria-label="Closed cell"></button>
-        <button class="cell" type="button" data-surface="closed" data-kind="empty" data-count="0" aria-label="Closed cell"></button>
-        <button class="cell" type="button" data-surface="closed" data-kind="empty" data-count="0" aria-label="Closed cell"></button>
-        <button class="cell" type="button" data-surface="closed" data-kind="empty" data-count="0" aria-label="Closed cell"></button>
-        <button class="cell" type="button" data-surface="closed" data-kind="empty" data-count="0" aria-label="Closed cell"></button>
-        <button class="cell" type="button" data-surface="closed" data-kind="empty" data-count="0" aria-label="Closed cell"></button>
-        <button class="cell" type="button" data-surface="closed" data-kind="empty" data-count="0" aria-label="Closed cell"></button>
-        <button class="cell" type="button" data-surface="closed" data-kind="empty" data-count="0" aria-label="Closed cell"></button>
-        <button class="cell" type="button" data-surface="closed" data-kind="empty" data-count="0" aria-label="Closed cell"></button>
-        <button class="cell" type="button" data-surface="closed" data-kind="empty" data-count="0" aria-label="Closed cell"></button>
-        <button class="cell" type="button" data-surface="closed" data-kind="empty" data-count="0" aria-label="Closed cell"></button>
-        <button class="cell" type="button" data-surface="closed" data-kind="empty" data-count="0" aria-label="Closed cell"></button>
-        <button class="cell" type="button" data-surface="closed" data-kind="empty" data-count="0" aria-label="Closed cell"></button>
-        <button class="cell" type="button" data-surface="closed" data-kind="empty" data-count="0" aria-label="Closed cell"></button>
-        <button class="cell" type="button" data-surface="closed" data-kind="empty" data-count="0" aria-label="Closed cell"></button>
-        <button class="cell" type="button" data-surface="closed" data-kind="empty" data-count="0" aria-label="Closed cell"></button>
-        <button class="cell" type="button" data-surface="closed" data-kind="empty" data-count="0" aria-label="Closed cell"></button>
-        <button class="cell" type="button" data-surface="closed" data-kind="empty" data-count="0" aria-label="Closed cell"></button>
-        <button class="cell" type="button" data-surface="closed" data-kind="empty" data-count="0" aria-label="Closed cell"></button>
-        <button class="cell" type="button" data-surface="closed" data-kind="empty" data-count="0" aria-label="Closed cell"></button>
-        <button class="cell" type="button" data-surface="closed" data-kind="empty" data-count="0" aria-label="Closed cell"></button>
-        <button class="cell" type="button" data-surface="closed" data-kind="empty" data-count="0" aria-label="Closed cell"></button>
-        <button class="cell" type="button" data-surface="closed" data-kind="empty" data-count="0" aria-label="Closed cell"></button>
-        <button class="cell" type="button" data-surface="closed" data-kind="empty" data-count="0" aria-label="Closed cell"></button>
-        <button class="cell" type="button" data-surface="closed" data-kind="empty" data-count="0" aria-label="Closed cell"></button>
-        <button class="cell" type="button" data-surface="closed" data-kind="empty" data-count="0" aria-label="Closed cell"></button>
-        <button class="cell" type="button" data-surface="closed" data-kind="empty" data-count="0" aria-label="Closed cell"></button>
-        <button class="cell" type="button" data-surface="closed" data-kind="empty" data-count="0" aria-label="Closed cell"></button>
-        <button class="cell" type="button" data-surface="closed" data-kind="empty" data-count="0" aria-label="Closed cell"></button>
-        <button class="cell" type="button" data-surface="closed" data-kind="empty" data-count="0" aria-label="Closed cell"></button>
-        <button class="cell" type="button" data-surface="closed" data-kind="empty" data-count="0" aria-label="Closed cell"></button>
-        <button class="cell" type="button" data-surface="closed" data-kind="empty" data-count="0" aria-label="Closed cell"></button>
-        <button class="cell" type="button" data-surface="closed" data-kind="empty" data-count="0" aria-label="Closed cell"></button>
-        <button class="cell" type="button" data-surface="closed" data-kind="empty" data-count="0" aria-label="Closed cell"></button>
-        <button class="cell" type="button" data-surface="closed" data-kind="empty" data-count="0" aria-label="Closed cell"></button>
-        <button class="cell" type="button" data-surface="closed" data-kind="empty" data-count="0" aria-label="Closed cell"></button>
-        <button class="cell" type="button" data-surface="closed" data-kind="empty" data-count="0" aria-label="Closed cell"></button>
-        <button class="cell" type="button" data-surface="closed" data-kind="empty" data-count="0" aria-label="Closed cell"></button>
-        <button class="cell" type="button" data-surface="closed" data-kind="empty" data-count="0" aria-label="Closed cell"></button>
-        <button class="cell" type="button" data-surface="closed" data-kind="empty" data-count="0" aria-label="Closed cell"></button>
-        <button class="cell" type="button" data-surface="closed" data-kind="empty" data-count="0" aria-label="Closed cell"></button>
-        <button class="cell" type="button" data-surface="closed" data-kind="empty" data-count="0" aria-label="Closed cell"></button>
-        <button class="cell" type="button" data-surface="closed" data-kind="empty" data-count="0" aria-label="Closed cell"></button>
-        <button class="cell" type="button" data-surface="closed" data-kind="empty" data-count="0" aria-label="Closed cell"></button>
-        <button class="cell" type="button" data-surface="closed" data-kind="empty" data-count="0" aria-label="Closed cell"></button>
-        <button class="cell" type="button" data-surface="closed" data-kind="empty" data-count="0" aria-label="Closed cell"></button>
-        <button class="cell" type="button" data-surface="closed" data-kind="empty" data-count="0" aria-label="Closed cell"></button>
-        <button class="cell" type="button" data-surface="closed" data-kind="empty" data-count="0" aria-label="Closed cell"></button>
-        <button class="cell" type="button" data-surface="closed" data-kind="empty" data-count="0" aria-label="Closed cell"></button>
-        <button class="cell" type="button" data-surface="closed" data-kind="empty" data-count="0" aria-label="Closed cell"></button>
-        <button class="cell" type="button" data-surface="closed" data-kind="empty" data-count="0" aria-label="Closed cell"></button>
-        <button class="cell" type="button" data-surface="closed" data-kind="empty" data-count="0" aria-label="Closed cell"></button>
-        <button class="cell" type="button" data-surface="closed" data-kind="empty" data-count="0" aria-label="Closed cell"></button>
-        <button class="cell" type="button" data-surface="closed" data-kind="empty" data-count="0" aria-label="Closed cell"></button>
-        <button class="cell" type="button" data-surface="closed" data-kind="empty" data-count="0" aria-label="Closed cell"></button>
-        <button class="cell" type="button" data-surface="closed" data-kind="empty" data-count="0" aria-label="Closed cell"></button>
-        <button class="cell" type="button" data-surface="closed" data-kind="empty" data-count="0" aria-label="Closed cell"></button>
-        <button class="cell" type="button" data-surface="closed" data-kind="empty" data-count="0" aria-label="Closed cell"></button>
-        <button class="cell" type="button" data-surface="closed" data-kind="empty" data-count="0" aria-label="Closed cell"></button>
-        <button class="cell" type="button" data-surface="closed" data-kind="empty" data-count="0" aria-label="Closed cell"></button>
-        <button class="cell" type="button" data-surface="closed" data-kind="empty" data-count="0" aria-label="Closed cell"></button>
-        <button class="cell" type="button" data-surface="closed" data-kind="empty" data-count="0" aria-label="Closed cell"></button>
-        <button class="cell" type="button" data-surface="closed" data-kind="empty" data-count="0" aria-label="Closed cell"></button>
-        <button class="cell" type="button" data-surface="closed" data-kind="empty" data-count="0" aria-label="Closed cell"></button>
-        <button class="cell" type="button" data-surface="closed" data-kind="empty" data-count="0" aria-label="Closed cell"></button>
-        <button class="cell" type="button" data-surface="closed" data-kind="empty" data-count="0" aria-label="Closed cell"></button>
-        <button class="cell" type="button" data-surface="closed" data-kind="empty" data-count="0" aria-label="Closed cell"></button>
-        <button class="cell" type="button" data-surface="closed" data-kind="empty" data-count="0" aria-label="Closed cell"></button>
-        <button class="cell" type="button" data-surface="closed" data-kind="empty" data-count="0" aria-label="Closed cell"></button>
-        <button class="cell" type="button" data-surface="closed" data-kind="empty" data-count="0" aria-label="Closed cell"></button>
-        <button class="cell" type="button" data-surface="closed" data-kind="empty" data-count="0" aria-label="Closed cell"></button>
-        <button class="cell" type="button" data-surface="closed" data-kind="empty" data-count="0" aria-label="Closed cell"></button>
-        <button class="cell" type="button" data-surface="closed" data-kind="empty" data-count="0" aria-label="Closed cell"></button>
-      </section>
+      <p class="game-message" id="game-message" role="status" aria-live="polite" aria-atomic="true"></p>
+      <section class="board" id="board" style="--cols:10" aria-label="Minesweeper board 10 by 10"></section>
 
-      <p class="board-hint">The grid is rendered directly in HTML, so it appears even without JavaScript.</p>
+      <p class="board-hint">The board starts empty here so JavaScript can generate the cells dynamically.</p>
     </section>
   </main>
 </div>
