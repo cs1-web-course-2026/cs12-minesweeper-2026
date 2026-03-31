@@ -81,8 +81,8 @@ function countFlaggedCells(field) {
   return flags;
 }
 
-function getFlagsLeft() {
-  return gameState.minesCount - gameState.flagsPlaced;
+function getFlagsLeft(minesCount, flagsPlaced) {
+  return minesCount - flagsPlaced;
 }
 
 function formatCounter(value) {
@@ -257,17 +257,15 @@ function toggleFlag(row, col) {
     return;
   }
 
-  if (gameState.timerId === null) {
-    startTimer();
-  }
-
   if (cell.state === CELL_STATE.CLOSED) {
-    if (getFlagsLeft() === 0) {
+    if (getFlagsLeft(gameState.minesCount, gameState.flagsPlaced) === 0) {
       return;
     }
+    startTimer();
     cell.state = CELL_STATE.FLAGGED;
     gameState.flagsPlaced += 1;
   } else if (cell.state === CELL_STATE.FLAGGED) {
+    startTimer();
     cell.state = CELL_STATE.CLOSED;
     gameState.flagsPlaced -= 1;
   }
@@ -330,6 +328,7 @@ function applyCellClasses(button, cell, row, col) {
 function renderBoard() {
   const fragment = document.createDocumentFragment();
   dom.board.style.setProperty('--board-cols', String(gameState.cols));
+  dom.board.setAttribute('aria-label', `Сітка ${gameState.rows} на ${gameState.cols}`);
 
   for (let row = 0; row < gameState.rows; row += 1) {
     for (let col = 0; col < gameState.cols; col += 1) {
@@ -354,7 +353,7 @@ function renderBoard() {
 }
 
 function renderIndicators() {
-  dom.flags.textContent = formatCounter(getFlagsLeft());
+  dom.flags.textContent = formatCounter(getFlagsLeft(gameState.minesCount, gameState.flagsPlaced));
   dom.timer.textContent = formatCounter(gameState.gameTime);
 }
 
