@@ -123,6 +123,11 @@ body {
 .val-1 { color: blue; }
 .val-2 { color: green; }
 .val-3 { color: red; }
+.val-4 { color: navy; }
+.val-5 { color: maroon; }
+.val-6 { color: teal; }
+.val-7 { color: black; }
+.val-8 { color: gray; }
 
 .board .cell.opened {
     border: 1px solid #808080;
