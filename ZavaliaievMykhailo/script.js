@@ -37,11 +37,10 @@ const gameState = {
   gameTime: 0,
   flagsPlaced: 0,
   timerId: null,
+  field: [],
+  explodedCell: null,
+  boardButtons: [],
 };
-
-let field = [];
-let explodedCell = null;
-let boardButtons = [];
 
 const elements = {
   app: document.getElementById('app'),
@@ -110,7 +109,7 @@ function countNeighbourMines(currentField) {
   }
 }
 
-function getNeighbourCoords(row, col, currentField = field) {
+function getNeighbourCoords(row, col, currentField = gameState.field) {
   const coords = [];
 
   for (let rowShift = -1; rowShift <= 1; rowShift += 1) {
@@ -131,7 +130,7 @@ function getNeighbourCoords(row, col, currentField = field) {
   return coords;
 }
 
-function isInsideField(row, col, currentField = field) {
+function isInsideField(row, col, currentField = gameState.field) {
   return (
     row >= 0
     && row < currentField.length
@@ -145,7 +144,7 @@ function openCell(row, col) {
     return;
   }
 
-  const currentCell = field[row][col];
+  const currentCell = gameState.field[row][col];
 
   if (
     currentCell.state === CELL_STATE.OPEN
@@ -158,7 +157,7 @@ function openCell(row, col) {
 
   if (currentCell.type === CELL_CONTENT.MINE) {
     currentCell.state = CELL_STATE.OPEN;
-    explodedCell = { row, col };
+    gameState.explodedCell = { row, col };
     gameState.status = GAME_STATUS.LOST;
     stopTimer();
     render();
@@ -175,7 +174,7 @@ function openCell(row, col) {
 }
 
 function openEmptyArea(row, col) {
-  const currentCell = field[row][col];
+  const currentCell = gameState.field[row][col];
 
   if (
     currentCell.state === CELL_STATE.OPEN
@@ -202,7 +201,7 @@ function toggleFlag(row, col) {
     return;
   }
 
-  const currentCell = field[row][col];
+  const currentCell = gameState.field[row][col];
 
   if (currentCell.state === CELL_STATE.OPEN) {
     return;
@@ -229,7 +228,7 @@ function toggleFlag(row, col) {
 }
 
 function checkWin() {
-  return field.every((row) => row.every((cell) => (
+  return gameState.field.every((row) => row.every((cell) => (
     cell.type === CELL_CONTENT.MINE || cell.state === CELL_STATE.OPEN
   )));
 }
@@ -237,7 +236,7 @@ function checkWin() {
 function finishGameAsWin() {
   gameState.status = GAME_STATUS.WON;
 
-  field.forEach((row) => {
+  gameState.field.forEach((row) => {
     row.forEach((cell) => {
       if (cell.type === CELL_CONTENT.MINE && cell.state === CELL_STATE.CLOSED) {
         cell.state = CELL_STATE.FLAGGED;
@@ -275,25 +274,24 @@ function resetGame() {
   gameState.status = GAME_STATUS.PLAYING;
   gameState.gameTime = 0;
   gameState.flagsPlaced = 0;
-  explodedCell = null;
-  field = generateField(gameState.rows, gameState.cols, gameState.minesCount);
+  gameState.explodedCell = null;
+  gameState.field = generateField(gameState.rows, gameState.cols, gameState.minesCount);
 
   initializeBoard();
   render();
 }
 
 function initializeBoard() {
-  const cellElements = Array.from(elements.board.querySelectorAll('.cell'));
-  const expectedCellsCount = gameState.rows * gameState.cols;
+  const fragment = document.createDocumentFragment();
 
-  if (cellElements.length !== expectedCellsCount) {
-    throw new Error(`Board markup must contain exactly ${expectedCellsCount} cells.`);
-  }
+  elements.board.replaceChildren();
 
-  boardButtons = Array.from({ length: gameState.rows }, (_, rowIndex) => (
+  gameState.boardButtons = Array.from({ length: gameState.rows }, (_, rowIndex) => (
     Array.from({ length: gameState.cols }, (_, colIndex) => {
-      const button = cellElements[rowIndex * gameState.cols + colIndex];
+      const button = document.createElement('button');
 
+      button.className = 'cell';
+      button.type = 'button';
       button.dataset.row = String(rowIndex);
       button.dataset.col = String(colIndex);
       button.dataset.surface = CELL_STATE.CLOSED;
@@ -301,20 +299,27 @@ function initializeBoard() {
       button.dataset.count = '0';
       button.textContent = '';
       button.disabled = false;
+      button.setAttribute('aria-label', 'Closed cell');
       button.style.setProperty(
         '--cell-delay',
         `${Math.min((rowIndex * gameState.cols + colIndex) * 12, 240)}ms`,
       );
 
+      fragment.appendChild(button);
+
       return button;
     })
   ));
+
+  elements.board.appendChild(fragment);
 
   elements.board.style.setProperty('--cols', String(gameState.cols));
   elements.board.setAttribute(
     'aria-label',
     `Minesweeper board ${gameState.rows} by ${gameState.cols}`,
   );
+  elements.board.setAttribute('aria-rowcount', String(gameState.rows));
+  elements.board.setAttribute('aria-colcount', String(gameState.cols));
 }
 
 function getFlagsPlaced() {
@@ -362,9 +367,9 @@ function render() {
 }
 
 function renderBoard() {
-  field.forEach((row, rowIndex) => {
+  gameState.field.forEach((row, rowIndex) => {
     row.forEach((cell, colIndex) => {
-      const button = boardButtons[rowIndex][colIndex];
+      const button = gameState.boardButtons[rowIndex][colIndex];
       const presentation = getCellPresentation(cell, rowIndex, colIndex);
 
       applyCellPresentation(button, presentation);
@@ -383,7 +388,11 @@ function applyCellPresentation(button, presentation) {
 
 function getCellPresentation(cell, row, col) {
   if (gameState.status === GAME_STATUS.LOST) {
-    if (explodedCell && explodedCell.row === row && explodedCell.col === col) {
+    if (
+      gameState.explodedCell
+      && gameState.explodedCell.row === row
+      && gameState.explodedCell.col === col
+    ) {
       return {
         surface: 'exploded',
         kind: CELL_CONTENT.MINE,
@@ -508,6 +517,6 @@ window.minesweeper = {
   toggleFlag,
   resetGame,
   get field() {
-    return field;
+    return gameState.field;
   },
 };
