@@ -118,17 +118,18 @@ Invoke in parallel:
 
 ### Step 3 — Merge verdicts with conservative tie-breaking
 
-For each thread, combine the two verdicts using this priority order (most conservative wins):
+For each thread, combine the two verdicts using this priority order:
 
 | Claude verdict   | Codex verdict    | Merged verdict   |
 | ---------------- | ---------------- | ---------------- |
 | `FIXED`          | `FIXED`          | `FIXED`          |
 | `NOT_APPLICABLE` | `NOT_APPLICABLE` | `NOT_APPLICABLE` |
-| `FIXED`          | `NOT_APPLICABLE` | `NOT_APPLICABLE` |
+| `FIXED`          | `NOT_APPLICABLE` | `FIXED`          |
+| `NOT_APPLICABLE` | `FIXED`          | `FIXED`          |
 | anything         | `NOT_FIXED`      | `NOT_FIXED`      |
 | `NOT_FIXED`      | anything         | `NOT_FIXED`      |
 
-Rule: `NOT_FIXED` beats everything; `NOT_APPLICABLE` beats `FIXED`; `FIXED` only when both agree.
+Rule: `NOT_FIXED` beats everything. If neither model reports `NOT_FIXED`, prefer `FIXED` over `NOT_APPLICABLE` for disagreements to avoid incorrectly dismissing comments that may already be addressed.
 
 ### Step 4 — Act on each thread
 
