@@ -184,7 +184,7 @@ function renderBoard() {
                 }
             }
 
-            boardEl.appendChild(cellButton);
+            boardElement.appendChild(cellButton);
         }
     }
 
