@@ -1,17 +1,17 @@
 <!DOCTYPE html>
-<html lang="ru">
+<html lang="en">
 <head>
 <meta charset="UTF-8">
 <title>Minesweeper</title>
-<link rel="Minesweeper" href="style.css">
+<link rel="stylesheet" href="styles.css">
 </head>
 
 <body>
 
-<div class="saper">
+<div class="game-container">
 
     <div class="topbar">
-        <p class="title">Sapper</p>
+        <p class="title">Minesweeper</p>
 
         <div class="icons">
             <div class="circle"></div>
@@ -26,57 +26,59 @@
     </div>
 
     <div class="emoji">
-        <div class="emojiBox">🙂</div>
+        <div class="reset-button">🙂</div>
     </div>
 
     <div class="field">
 
         <div class="row">
-            <div class="cell"></div>
-            <div class="cell"></div>
-            <div class="cell"></div>
-            <div class="cell"></div>
-            <div class="cell"></div>
+            <button class="cell"></button>
+            <button class="cell"></button>
+            <button class="cell"></button>
+            <button class="cell"></button>
+            <button class="cell"></button>
         </div>
 
         <div class="row">
-            <div class="cell"></div>
-            <div class="cell"></div>
-            <div class="cell number1">1</div>
-            <div class="cell"></div>
-            <div class="cell"></div>
+            <button class="cell"></button>
+            <button class="cell"></button>
+            <button class="cell adjacent-mine-1">1</button>
+            <button class="cell"></button>
+            <button class="cell"></button>
         </div>
 
         <div class="row">
-            <div class="cell"></div>
-            <div class="cell number2">2</div>
-            <div class="cell"></div>
-            <div class="cell"></div>
-            <div class="cell"></div>
+            <button class="cell"></button>
+            <button class="cell adjacent-mine-2">2</button>
+            <button class="cell"></button>
+            <button class="cell"></button>
+            <button class="cell"></button>
         </div>
 
         <div class="row">
-            <div class="cell"></div>
-            <div class="cell"></div>
-            <div class="cell"></div>
-            <div class="cell"></div>
-            <div class="cell"></div>
+            <button class="cell"></button>
+            <button class="cell"></button>
+            <button class="cell"></button>
+            <button class="cell"></button>
+            <button class="cell"></button>
         </div>
 
         <div class="row">
-            <div class="cell number1">1</div>
-            <div class="cell flag">🚩</div>
-            <div class="cell number1">1</div>
-            <div class="cell"></div>
-            <div class="cell"></div>
+            <button class="cell adjacent-mine-1">1</button>
+            <button class="cell flag">🚩</button>
+            <button class="cell adjacent-mine-1">1</button>
+            <button class="cell"></button>
+            <button class="cell"></button>
         </div>
 
         <div class="row">
-            <div class="cell"></div>
-            <div class="cell number2">2</div>
-            <div class="cell"></div>
-            <div class="cell"></div>
-            <div class="cell"></div>
+            <button class="cell"></button>
+            <button class="cell adjacent-mine-2">2</button>
+            <button class="cell"></button>
+            <button class="cell"></button>
+            <button class="cell"></button>
+        </div>
+
     </div>
 
 </div>
