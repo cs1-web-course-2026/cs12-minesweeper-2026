@@ -7,17 +7,17 @@
   <link rel="stylesheet" href="styles.css">
 </head>
 <body>
-  <div class="minesweeper">
-    <div class="menu">
+  <main class="minesweeper">
+    <header class="menu">
       <div id="flags-counter" class="counter-display">015</div>
       <button id="restart-button" class="restart-button" type="button" aria-label="Start or restart game">🙂</button>
       <div id="timer-counter" class="counter-display">000</div>
-    </div>
+    </header>
 
-    <div id="status-message" class="status-message" aria-live="polite">Гра розпочалась</div>
+    <div id="status-message" class="status-message" role="status" aria-live="polite">Гра розпочалась</div>
 
     <div id="playing-field" class="playing-field" aria-label="Minesweeper board"></div>
-  </div>
+  </main>
 
   <script src="script.js"></script>
 </body>

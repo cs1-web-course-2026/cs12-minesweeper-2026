@@ -64,8 +64,10 @@ const timerAdapter = {
   },
 };
 
-let activeGameField = [];
-let activeGameState = null;
+const activeGame = {
+  field: [],
+  state: null,
+};
 
 function createInitialGameState(rows, cols, minesCount) {
   const initialState = {
@@ -238,7 +240,7 @@ function revealAllMines(field) {
 function checkWinCondition(currentGameState) {
   const safeCellsCount = currentGameState.rows * currentGameState.cols - currentGameState.minesCount;
 
-  return currentGameState.closedCellsCount === 0 && safeCellsCount > 0;
+  return currentGameState.closedCellsCount === currentGameState.minesCount && safeCellsCount > 0;
 }
 
 function stopGameTimer(currentGameState, currentTimerAdapter) {
@@ -427,6 +429,7 @@ function updateBoardCellClasses(currentField, currentGameState) {
     if (isInBounds(currentField, row, col)) {
       const currentCell = currentField[row][col];
       cellButton.className = getCellClassNames(row, col, currentCell, currentGameState).join(' ');
+      cellButton.setAttribute('aria-label', `Клітинка ${row + 1}-${col + 1}. ${getCellAriaLabel(currentCell)}`);
     }
   }
 }
@@ -511,40 +514,40 @@ function handleLeftClickOnField(event) {
     return;
   }
 
-  const selectedCell = activeGameField[selectedCoordinates.row][selectedCoordinates.col];
+  const selectedCell = activeGame.field[selectedCoordinates.row][selectedCoordinates.col];
 
   if (
-    activeGameState.status === GAME_STATUS.PLAYING &&
-    !activeGameState.areMinesPlaced &&
+    activeGame.state.status === GAME_STATUS.PLAYING &&
+    !activeGame.state.areMinesPlaced &&
     selectedCell.state === CELL_STATE.CLOSED
   ) {
     placeMinesAvoidingFirstOpen(
-      activeGameField,
-      activeGameState.minesCount,
+      activeGame.field,
+      activeGame.state.minesCount,
       selectedCoordinates.row,
       selectedCoordinates.col,
     );
 
-    activeGameState.areMinesPlaced = true;
-    startGameTimer(activeGameState, timerAdapter);
+    activeGame.state.areMinesPlaced = true;
+    startGameTimer(activeGame.state, timerAdapter);
   }
 
   openCell(
     selectedCoordinates.row,
     selectedCoordinates.col,
-    activeGameField,
-    activeGameState,
+    activeGame.field,
+    activeGame.state,
   );
 
   if (
-    activeGameState.status === GAME_STATUS.PLAYING &&
-    checkWinCondition(activeGameState)
+    activeGame.state.status === GAME_STATUS.PLAYING &&
+    checkWinCondition(activeGame.state)
   ) {
-    activeGameState.status = GAME_STATUS.WON;
+    activeGame.state.status = GAME_STATUS.WON;
   }
 
-  applyGameEndIfNeeded(activeGameState);
-  renderGame(activeGameField, activeGameState);
+  applyGameEndIfNeeded(activeGame.state);
+  renderGame(activeGame.field, activeGame.state);
 }
 
 function handleRightClickOnField(event) {
@@ -559,29 +562,29 @@ function handleRightClickOnField(event) {
   const isCellUpdated = toggleFlag(
     selectedCoordinates.row,
     selectedCoordinates.col,
-    activeGameField,
-    activeGameState,
+    activeGame.field,
+    activeGame.state,
   );
 
   if (!isCellUpdated) {
     return;
   }
 
-  renderFlagsCounter(activeGameState);
-  updateBoardCellClasses(activeGameField, activeGameState);
+  renderFlagsCounter(activeGame.state);
+  updateBoardCellClasses(activeGame.field, activeGame.state);
 }
 
 function startNewGameSession() {
-  if (activeGameState) {
-    stopGameTimer(activeGameState, timerAdapter);
+  if (activeGame.state) {
+    stopGameTimer(activeGame.state, timerAdapter);
   }
 
   const nextGame = resetGame();
 
-  activeGameState = nextGame.gameState;
-  activeGameField = nextGame.gameField;
+  activeGame.state = nextGame.gameState;
+  activeGame.field = nextGame.gameField;
 
-  renderGame(activeGameField, activeGameState);
+  renderGame(activeGame.field, activeGame.state);
 }
 
 function bindUserEvents() {
