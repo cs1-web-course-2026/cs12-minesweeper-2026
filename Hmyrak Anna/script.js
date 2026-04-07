@@ -19,7 +19,14 @@ const GAME_STATUS = {
     PROCESS: 'process',
     WIN: 'win',
     LOSE: 'lose',
+    ERROR: 'error',
 };
+
+const DIFFICULTY_PRESETS = [
+    { name: 'Beginner', rows: 8, cols: 8, minesCount: 10 },
+    { name: 'Intermediate', rows: 12, cols: 12, minesCount: 24 },
+    { name: 'Expert', rows: 16, cols: 16, minesCount: 40 }
+];
 
 
 function createCell() {
@@ -106,7 +113,21 @@ function countNeighbourMines(grid, rows, cols) {
 
 
 function createGame(customConfig = {}) {
-    const config = { ...DEFAULT_CONFIG, ...customConfig };
+    function normalizeConfig(rawConfig) {
+        const mergedConfig = { ...DEFAULT_CONFIG, ...rawConfig };
+
+        const rows = Number.isFinite(mergedConfig.rows) ? Math.max(2, Math.floor(mergedConfig.rows)) : DEFAULT_CONFIG.rows;
+        const cols = Number.isFinite(mergedConfig.cols) ? Math.max(2, Math.floor(mergedConfig.cols)) : DEFAULT_CONFIG.cols;
+        const requestedMines = Number.isFinite(mergedConfig.minesCount) ? Math.floor(mergedConfig.minesCount) : DEFAULT_CONFIG.minesCount;
+
+        // Reserve up to a 3x3 safe area for the first click in the worst-case position.
+        const maxMines = Math.max(0, (rows * cols) - 9);
+        const minesCount = Math.min(Math.max(0, requestedMines), maxMines);
+
+        return { rows, cols, minesCount };
+    }
+
+    const config = normalizeConfig(customConfig);
 
     const gameState = {
         rows: config.rows,
@@ -118,7 +139,8 @@ function createGame(customConfig = {}) {
         openedCells: 0,
         firstClick: true,
         started: false,
-        timerId: null
+        timerId: null,
+        errorMessage: ''
     };
 
 
@@ -146,6 +168,7 @@ function createGame(customConfig = {}) {
         resetGridDerivedState();
         gameState.firstClick = true;
         gameState.started = false;
+        gameState.errorMessage = '';
         grid = createEmptyGrid(gameState.rows, gameState.cols);
     }
 
@@ -259,7 +282,15 @@ function createGame(customConfig = {}) {
             gameState.firstClick = false;
             gameState.started = true;
             startTimer();
-            generateField(gameState.rows, gameState.cols, gameState.minesCount, row, col);
+            try {
+                generateField(gameState.rows, gameState.cols, gameState.minesCount, row, col);
+            } catch (error) {
+                gameState.status = GAME_STATUS.ERROR;
+                gameState.started = false;
+                gameState.errorMessage = 'Unable to start the field with current settings.';
+                stopTimer();
+                return false;
+            }
         }
 
         const cell = grid[row][col];
@@ -385,17 +416,22 @@ if (typeof window !== 'undefined') {
 if (typeof window !== 'undefined' && typeof document !== 'undefined') {
     (function initMinesweeperUI() {
         const fieldElement = document.getElementById('field');
+        const titleContainerElement = document.querySelector('.title-container');
+        const headerElement = document.querySelector('.header');
         const timerCounterElement = document.getElementById('timer-counter');
         const minesCounterElement = document.getElementById('mines-counter');
         const restartButton = document.getElementById('restart-btn');
+        const optionsButton = document.getElementById('options-btn');
+        const helpButton = document.getElementById('help-btn');
         const faceButton = document.getElementById('face-btn');
         const statusMessageElement = document.getElementById('status-message');
 
-        if (!fieldElement || !timerCounterElement || !minesCounterElement || !restartButton || !faceButton || !statusMessageElement) {
+        if (!fieldElement || !titleContainerElement || !headerElement || !timerCounterElement || !minesCounterElement || !restartButton || !optionsButton || !helpButton || !faceButton || !statusMessageElement) {
             return;
         }
 
-        const game = createGame();
+        let currentDifficultyIndex = 0;
+        let game = createGame(DIFFICULTY_PRESETS[currentDifficultyIndex]);
         const cellElements = [];
         const uiState = {
             headerIntervalId: null,
@@ -481,7 +517,6 @@ if (typeof window !== 'undefined' && typeof document !== 'undefined') {
                     cellElement.className = 'cell-btn closed-cage';
                     cellElement.dataset.row = String(row);
                     cellElement.dataset.col = String(col);
-                    cellElement.setAttribute('role', 'gridcell');
                     cellElement.setAttribute('aria-rowindex', String(row + 1));
                     cellElement.setAttribute('aria-colindex', String(col + 1));
                     cellElement.setAttribute('tabindex', row === uiState.currentFocus.row && col === uiState.currentFocus.col ? '0' : '-1');
@@ -496,6 +531,23 @@ if (typeof window !== 'undefined' && typeof document !== 'undefined') {
             }
 
             fieldElement.appendChild(fragment);
+        }
+
+        function updateLayoutDimensions() {
+            const state = game.getState();
+            const cellSize = 31;
+            const fieldInnerWidth = state.cols * cellSize;
+            const fieldInnerHeight = state.rows * cellSize;
+
+            fieldElement.style.width = fieldInnerWidth + 'px';
+            fieldElement.style.height = fieldInnerHeight + 'px';
+            headerElement.style.width = fieldInnerWidth + 'px';
+
+            const menuWidth = 250;
+            const frameBorder = 10;
+            const sidePadding = 20;
+            const desiredContainerWidth = Math.max(fieldInnerWidth + frameBorder + sidePadding, menuWidth);
+            titleContainerElement.style.width = desiredContainerWidth + 'px';
         }
 
         function moveFocusToCell(row, col) {
@@ -574,6 +626,8 @@ if (typeof window !== 'undefined' && typeof document !== 'undefined') {
                 faceButton.classList.add('face-win');
             } else if (state.status === GAME_STATUS.LOSE) {
                 faceButton.classList.add('face-lose');
+            } else if (state.status === GAME_STATUS.ERROR) {
+                faceButton.classList.add('face-lose');
             }
         }
 
@@ -588,6 +642,9 @@ if (typeof window !== 'undefined' && typeof document !== 'undefined') {
                 statusMessageElement.classList.add('win');
             } else if (state.status === GAME_STATUS.LOSE) {
                 statusMessageElement.textContent = 'Boom! You hit a mine.';
+                statusMessageElement.classList.add('lose');
+            } else if (state.status === GAME_STATUS.ERROR) {
+                statusMessageElement.textContent = state.errorMessage || 'Unable to generate field. Try another difficulty.';
                 statusMessageElement.classList.add('lose');
             }
         }
@@ -647,7 +704,37 @@ if (typeof window !== 'undefined' && typeof document !== 'undefined') {
                 buildGridDOM();
             }
 
+            updateLayoutDimensions();
+
             render();
+        }
+
+        function switchDifficulty() {
+            currentDifficultyIndex = (currentDifficultyIndex + 1) % DIFFICULTY_PRESETS.length;
+            const preset = DIFFICULTY_PRESETS[currentDifficultyIndex];
+
+            game = createGame(preset);
+            uiState.currentFocus.row = 0;
+            uiState.currentFocus.col = 0;
+
+            buildGridDOM();
+            resetGame();
+
+            statusMessageElement.classList.remove('win', 'lose');
+            statusMessageElement.textContent = 'Difficulty: ' + preset.name + ' (' + preset.rows + 'x' + preset.cols + ', ' + preset.minesCount + ' mines)';
+        }
+
+        function showHelp() {
+            const helpText = [
+                'Controls:',
+                'Left click / Enter / Space: open a cell',
+                'Right click / F: place or remove a flag',
+                'Arrow keys: move between cells',
+                'Restart button or smiley: start a new game',
+                'Options: switch difficulty'
+            ].join('\n');
+
+            window.alert(helpText);
         }
 
         fieldElement.addEventListener('click', (event) => {
@@ -661,12 +748,12 @@ if (typeof window !== 'undefined' && typeof document !== 'undefined') {
         });
 
         fieldElement.addEventListener('contextmenu', (event) => {
-            event.preventDefault();
-
             const coords = getCellCoordinates(event.target);
             if (!coords) {
                 return;
             }
+
+            event.preventDefault();
 
             toggleFlagAction(coords.row, coords.col);
             moveFocusToCell(coords.row, coords.col);
@@ -715,6 +802,8 @@ if (typeof window !== 'undefined' && typeof document !== 'undefined') {
         });
 
         restartButton.addEventListener('click', resetGame);
+        optionsButton.addEventListener('click', switchDifficulty);
+        helpButton.addEventListener('click', showHelp);
         faceButton.addEventListener('click', resetGame);
 
         window.addEventListener('beforeunload', stopHeaderSync, { once: true });
