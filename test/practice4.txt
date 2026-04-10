@@ -1,0 +1,104 @@
+public class practice4{
+
+    static int factorial(int n){
+
+        int result=1;
+
+        for (int i=1; i<=n; i++){
+            result=result*i;
+        }
+        return result;
+    }
+
+    static long factorialL(int n){
+
+        long result=1L;
+
+        for (int i=1; i<=n; i++){
+            result=result*i;
+        }
+        return result;
+    }
+
+    static double factorialD(int n){
+
+        double result=1.0;
+
+        for (int i=1; i<=n; i++){
+            result=result*i;
+        }
+        return result;
+    }
+    static double f(double x){
+
+        int k=0;
+        double sum=1.0;
+        double term=1.0;
+
+        while (Math.abs(term)>=1e-6){
+            term *= -x / (k + 1.0);
+            sum+=term;
+            k++;
+        }
+
+        return sum;
+    }
+    public static void main(String[] args){
+
+        System.out.println("n\tfactorial(n)\tfactorialL(n)\tfactorialD(n)");
+
+        for (int i=1; i<=26; i++){
+
+            System.out.println(i + "\t" + factorial(i) + "\t" + factorialL(i) + "\t" + factorialD(i));
+
+        }
+        System.out.println("x=1;\t" + "f(x)=" + f(1));
+        System.out.println("x=-1;\t" + "f(x)=" + f(-1));
+
+    }
+
+}
+
+
+
+
+
+
+
+C:\Users\oasla\.jdks\openjdk-25.0.2\bin\java.exe "-javaagent:U:\IntelliJ IDEA 2026.1\lib\idea_rt.jar=50101" -Dfile.encoding=UTF-8 -Dsun.stdout.encoding=UTF-8 -Dsun.stderr.encoding=UTF-8 -classpath U:\javacodes\out\production\javacodes practice4
+n	factorial(n)	factorialL(n)	factorialD(n)
+1	1		1		1.0
+2	2		2		2.0
+3	6		6		6.0
+4	24		24		24.0
+5	120		120		120.0
+6	720		720		720.0
+7	5040		5040		5040.0
+8	40320		40320		40320.0
+9	362880		362880		362880.0
+10	3628800         3628800		3628800.0
+11	39916800	39916800	3.99168E7
+12	479001600	479001600	4.790016E8
+13	1932053504	6227020800	6.2270208E9
+14	1278945280	87178291200	8.71782912E10
+15	2004310016	1307674368000	1.307674368E12
+16	2004189184	20922789888000	2.0922789888E13
+17	-288522240	355687428096000	3.55687428096E14
+18	-898433024	6402373705728000	6.402373705728E15
+19	109641728	121645100408832000	1.21645100408832E17
+20	-2102132736	2432902008176640000	2.43290200817664E18
+21	-1195114496	-4249290049419214848	5.109094217170944E19
+22	-522715136	-1250660718674968576	1.1240007277776077E21
+23	862453760	8128291617894825984	2.585201673888498E22
+24	-775946240	-7835185981329244160	6.204484017332394E23
+25	2076180480	7034535277573963776	1.5511210043330986E25
+26	-1853882368	-1569523520172457984	4.0329146112660565E26
+x=1;	f(x)=0.3678794642857144
+x=-1;	f(x)=2.7182818011463845
+
+Process finished with exit code 0
+
+
+Результат в методі factorial "зламався" на n=14, бо ліміт числа для int це 2^31, що трохи більше за 2.14 мільярди.
+Результат в методі factorialL "зламався" на n=20, бо ліміт числа для long це 2^63, що приблизно дорівнює 9.2 квінтіліони.
+Результат в методі factorialD не зламався, бо double виписує числа в форматі з плаваючою точкою через e, що дає меншу точність, але дозволяє утримати число до 1.7e308.
