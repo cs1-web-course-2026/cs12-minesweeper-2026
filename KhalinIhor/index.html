@@ -1,0 +1,32 @@
+<!DOCTYPE html>
+<html lang="uk">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Minesweeper</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+<main class="game-shell" data-game>
+    <header class="game-header">
+        <div class="status-panel" aria-label="Індикатор прапорців">
+            <span class="status-label">Прапорці</span>
+            <output class="status-value" data-flags aria-live="polite">015</output>
+        </div>
+        <button class="start-button" data-restart type="button">Старт / Рестарт</button>
+        <div class="status-panel" aria-label="Таймер гри">
+            <span class="status-label">Час</span>
+            <output class="status-value" data-time aria-live="polite">000</output>
+        </div>
+    </header>
+
+    <p class="game-message" data-message role="status" aria-live="polite"></p>
+
+    <section class="board-wrap" aria-label="Ігрове поле">
+        <div class="game-board" data-board role="grid" aria-label="Сітка сапера"></div>
+    </section>
+</main>
+
+<script src="script.js"></script>
+</body>
+</html>
