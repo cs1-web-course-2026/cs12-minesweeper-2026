@@ -1,6 +1,7 @@
 'use strict';
 
 const GAME_STATUS = Object.freeze({
+  IDLE: 'idle',
   PLAYING: 'playing',
   WON: 'won',
   LOST: 'lost',
@@ -17,6 +18,21 @@ const CELL_STATE = Object.freeze({
   FLAGGED: 'flagged',
 });
 
+const CELL_SURFACE = Object.freeze({
+  CLOSED: CELL_STATE.CLOSED,
+  OPEN: CELL_STATE.OPEN,
+  FLAGGED: CELL_STATE.FLAGGED,
+  EXPLODED: 'exploded',
+  WRONG_FLAG: 'wrong-flag',
+});
+
+const CELL_PRESENTATION_KIND = Object.freeze({
+  EMPTY: CELL_CONTENT.EMPTY,
+  MINE: CELL_CONTENT.MINE,
+  FLAG: 'flag',
+  NUMBER: 'number',
+});
+
 const DEFAULT_SETTINGS = Object.freeze({
   rows: 10,
   cols: 10,
@@ -24,6 +40,7 @@ const DEFAULT_SETTINGS = Object.freeze({
 });
 
 const STATUS_LABELS = Object.freeze({
+  [GAME_STATUS.IDLE]: 'Ready to play',
   [GAME_STATUS.PLAYING]: 'In progress',
   [GAME_STATUS.WON]: 'Victory',
   [GAME_STATUS.LOST]: 'Game over',
@@ -33,7 +50,7 @@ const gameState = {
   rows: DEFAULT_SETTINGS.rows,
   cols: DEFAULT_SETTINGS.cols,
   minesCount: DEFAULT_SETTINGS.minesCount,
-  status: GAME_STATUS.PLAYING,
+  status: GAME_STATUS.IDLE,
   gameTime: 0,
   flagsPlaced: 0,
   timerId: null,
@@ -109,7 +126,7 @@ function countNeighbourMines(currentField) {
   }
 }
 
-function getNeighbourCoords(row, col, currentField = gameState.field) {
+function getNeighbourCoords(row, col, currentField) {
   const coords = [];
 
   for (let rowShift = -1; rowShift <= 1; rowShift += 1) {
@@ -130,7 +147,7 @@ function getNeighbourCoords(row, col, currentField = gameState.field) {
   return coords;
 }
 
-function isInsideField(row, col, currentField = gameState.field) {
+function isInsideField(row, col, currentField) {
   return (
     row >= 0
     && row < currentField.length
@@ -139,8 +156,23 @@ function isInsideField(row, col, currentField = gameState.field) {
   );
 }
 
+function isGameFinished() {
+  return (
+    gameState.status === GAME_STATUS.WON
+    || gameState.status === GAME_STATUS.LOST
+  );
+}
+
+function startGameIfNeeded() {
+  if (gameState.status === GAME_STATUS.IDLE) {
+    gameState.status = GAME_STATUS.PLAYING;
+  }
+
+  startTimer();
+}
+
 function openCell(row, col) {
-  if (gameState.status !== GAME_STATUS.PLAYING || !isInsideField(row, col)) {
+  if (isGameFinished() || !isInsideField(row, col, gameState.field)) {
     return;
   }
 
@@ -153,7 +185,7 @@ function openCell(row, col) {
     return;
   }
 
-  startTimer();
+  startGameIfNeeded();
 
   if (currentCell.type === CELL_CONTENT.MINE) {
     currentCell.state = CELL_STATE.OPEN;
@@ -191,13 +223,13 @@ function openEmptyArea(row, col) {
   }
 
   // Recursive flood-fill reveals the connected area of empty cells.
-  getNeighbourCoords(row, col).forEach(([nextRow, nextCol]) => {
+  getNeighbourCoords(row, col, gameState.field).forEach(([nextRow, nextCol]) => {
     openEmptyArea(nextRow, nextCol);
   });
 }
 
 function toggleFlag(row, col) {
-  if (gameState.status !== GAME_STATUS.PLAYING || !isInsideField(row, col)) {
+  if (isGameFinished() || !isInsideField(row, col, gameState.field)) {
     return;
   }
 
@@ -214,7 +246,7 @@ function toggleFlag(row, col) {
     return;
   }
 
-  startTimer();
+  startGameIfNeeded();
 
   if (currentCell.state === CELL_STATE.FLAGGED) {
     currentCell.state = CELL_STATE.CLOSED;
@@ -271,7 +303,7 @@ function stopTimer() {
 function resetGame() {
   stopTimer();
 
-  gameState.status = GAME_STATUS.PLAYING;
+  gameState.status = GAME_STATUS.IDLE;
   gameState.gameTime = 0;
   gameState.flagsPlaced = 0;
   gameState.explodedCell = null;
@@ -294,12 +326,15 @@ function initializeBoard() {
       button.type = 'button';
       button.dataset.row = String(rowIndex);
       button.dataset.col = String(colIndex);
-      button.dataset.surface = CELL_STATE.CLOSED;
-      button.dataset.kind = CELL_CONTENT.EMPTY;
+      button.dataset.surface = CELL_SURFACE.CLOSED;
+      button.dataset.kind = CELL_PRESENTATION_KIND.EMPTY;
       button.dataset.count = '0';
       button.textContent = '';
       button.disabled = false;
-      button.setAttribute('aria-label', 'Closed cell');
+      button.setAttribute(
+        'aria-label',
+        getCellAriaLabel(rowIndex, colIndex, 'Closed cell'),
+      );
       button.style.setProperty(
         '--cell-delay',
         `${Math.min((rowIndex * gameState.cols + colIndex) * 12, 240)}ms`,
@@ -361,6 +396,10 @@ function formatCounter(value) {
   return `${sign}${String(Math.abs(value)).padStart(3, '0')}`;
 }
 
+function getCellAriaLabel(row, col, stateLabel) {
+  return `Row ${row + 1}, column ${col + 1}, ${stateLabel.toLowerCase()}`;
+}
+
 function render() {
   updateHud();
   renderBoard();
@@ -372,18 +411,18 @@ function renderBoard() {
       const button = gameState.boardButtons[rowIndex][colIndex];
       const presentation = getCellPresentation(cell, rowIndex, colIndex);
 
-      applyCellPresentation(button, presentation);
+      applyCellPresentation(button, presentation, rowIndex, colIndex);
     });
   });
 }
 
-function applyCellPresentation(button, presentation) {
+function applyCellPresentation(button, presentation, row, col) {
   button.dataset.surface = presentation.surface;
   button.dataset.kind = presentation.kind;
   button.dataset.count = presentation.count;
-  button.disabled = gameState.status !== GAME_STATUS.PLAYING || presentation.surface === 'open';
+  button.disabled = isGameFinished() || presentation.surface === CELL_SURFACE.OPEN;
   button.textContent = presentation.text;
-  button.setAttribute('aria-label', presentation.ariaLabel);
+  button.setAttribute('aria-label', getCellAriaLabel(row, col, presentation.ariaLabel));
 }
 
 function getCellPresentation(cell, row, col) {
@@ -394,8 +433,8 @@ function getCellPresentation(cell, row, col) {
       && gameState.explodedCell.col === col
     ) {
       return {
-        surface: 'exploded',
-        kind: CELL_CONTENT.MINE,
+        surface: CELL_SURFACE.EXPLODED,
+        kind: CELL_PRESENTATION_KIND.MINE,
         count: '0',
         text: '\u2739',
         ariaLabel: 'Exploded mine',
@@ -404,8 +443,8 @@ function getCellPresentation(cell, row, col) {
 
     if (cell.state === CELL_STATE.FLAGGED && cell.type !== CELL_CONTENT.MINE) {
       return {
-        surface: 'wrong-flag',
-        kind: 'flag',
+        surface: CELL_SURFACE.WRONG_FLAG,
+        kind: CELL_PRESENTATION_KIND.FLAG,
         count: '0',
         text: '\u2691',
         ariaLabel: 'Incorrect flag',
@@ -414,8 +453,8 @@ function getCellPresentation(cell, row, col) {
 
     if (cell.type === CELL_CONTENT.MINE && cell.state !== CELL_STATE.FLAGGED) {
       return {
-        surface: 'open',
-        kind: CELL_CONTENT.MINE,
+        surface: CELL_SURFACE.OPEN,
+        kind: CELL_PRESENTATION_KIND.MINE,
         count: '0',
         text: '\u2739',
         ariaLabel: 'Mine',
@@ -425,8 +464,8 @@ function getCellPresentation(cell, row, col) {
 
   if (cell.state === CELL_STATE.FLAGGED) {
     return {
-      surface: 'flagged',
-      kind: 'flag',
+      surface: CELL_SURFACE.FLAGGED,
+      kind: CELL_PRESENTATION_KIND.FLAG,
       count: '0',
       text: '\u2691',
       ariaLabel: cell.type === CELL_CONTENT.MINE ? 'Flag on a mine' : 'Flag',
@@ -436,8 +475,8 @@ function getCellPresentation(cell, row, col) {
   if (cell.state === CELL_STATE.OPEN) {
     if (cell.type === CELL_CONTENT.MINE) {
       return {
-        surface: 'open',
-        kind: CELL_CONTENT.MINE,
+        surface: CELL_SURFACE.OPEN,
+        kind: CELL_PRESENTATION_KIND.MINE,
         count: '0',
         text: '\u2739',
         ariaLabel: 'Mine',
@@ -446,8 +485,8 @@ function getCellPresentation(cell, row, col) {
 
     if (cell.neighborMines > 0) {
       return {
-        surface: 'open',
-        kind: 'number',
+        surface: CELL_SURFACE.OPEN,
+        kind: CELL_PRESENTATION_KIND.NUMBER,
         count: String(cell.neighborMines),
         text: String(cell.neighborMines),
         ariaLabel: `Open cell, ${cell.neighborMines} mine${cell.neighborMines === 1 ? '' : 's'} nearby`,
@@ -455,8 +494,8 @@ function getCellPresentation(cell, row, col) {
     }
 
     return {
-      surface: 'open',
-      kind: CELL_CONTENT.EMPTY,
+      surface: CELL_SURFACE.OPEN,
+      kind: CELL_PRESENTATION_KIND.EMPTY,
       count: '0',
       text: '',
       ariaLabel: 'Open empty cell',
@@ -464,8 +503,8 @@ function getCellPresentation(cell, row, col) {
   }
 
   return {
-    surface: 'closed',
-    kind: CELL_CONTENT.EMPTY,
+    surface: CELL_SURFACE.CLOSED,
+    kind: CELL_PRESENTATION_KIND.EMPTY,
     count: '0',
     text: '',
     ariaLabel: 'Closed cell',
