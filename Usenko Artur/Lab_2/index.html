@@ -1,0 +1,237 @@
+<!doctype html>
+<html lang="uk">
+  <head>
+    <meta charset="UTF-8" />
+    <title>Minesweeper</title>
+    <style>
+      body {
+        font-family: monospace;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        background: #1e1e2e;
+        color: #cdd6f4;
+        margin: 0;
+        padding: 24px;
+      }
+
+      h1 {
+        margin-bottom: 8px;
+        font-size: 1.6rem;
+      }
+
+      #info {
+        display: flex;
+        gap: 32px;
+        margin-bottom: 16px;
+        font-size: 1.1rem;
+      }
+
+      #status-text {
+        font-weight: bold;
+      }
+
+      #board {
+        display: grid;
+        gap: 3px;
+        margin-bottom: 16px;
+      }
+
+      .cell {
+        width: 36px;
+        height: 36px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 1rem;
+        font-weight: bold;
+        border-radius: 4px;
+        cursor: pointer;
+        user-select: none;
+        transition: background 0.1s;
+      }
+
+      .cell.closed {
+        background: #45475a;
+        border: 2px solid #585b70;
+      }
+      .cell.closed:hover {
+        background: #585b70;
+      }
+
+      .cell.opened {
+        background: #313244;
+        border: 2px solid #313244;
+        cursor: default;
+      }
+
+      .cell.flagged {
+        background: #45475a;
+        border: 2px solid #f38ba8;
+        color: #f38ba8;
+      }
+
+      .cell.mine-exploded {
+        background: #f38ba8;
+        border: 2px solid #f38ba8;
+        color: #1e1e2e;
+      }
+
+      .n1 {
+        color: #89b4fa;
+      }
+      .n2 {
+        color: #a6e3a1;
+      }
+      .n3 {
+        color: #f38ba8;
+      }
+      .n4 {
+        color: #cba6f7;
+      }
+      .n5 {
+        color: #fab387;
+      }
+      .n6 {
+        color: #94e2d5;
+      }
+      .n7 {
+        color: #f5c2e7;
+      }
+      .n8 {
+        color: #cdd6f4;
+      }
+
+      button {
+        padding: 8px 24px;
+        font-size: 1rem;
+        border: none;
+        border-radius: 6px;
+        background: #89b4fa;
+        color: #1e1e2e;
+        cursor: pointer;
+        font-weight: bold;
+      }
+      button:hover {
+        background: #b4befe;
+      }
+
+      #message {
+        font-size: 1.4rem;
+        font-weight: bold;
+        height: 32px;
+        margin-bottom: 12px;
+      }
+
+      .win {
+        color: #a6e3a1;
+      }
+      .lose {
+        color: #f38ba8;
+      }
+    </style>
+  </head>
+  <body>
+    <h1>💣 Minesweeper</h1>
+
+    <div id="info">
+      <span>💣 <span id="mines-left">15</span></span>
+      <span>⏱ <span id="timer">0</span>s</span>
+      <span id="status-text">Гра йде...</span>
+    </div>
+
+    <div id="message"></div>
+
+    <div id="board"></div>
+
+    <button onclick="restartGame()">Нова гра</button>
+
+    <script src="script.js"></script>
+    <script>
+      function render() {
+        const board = document.getElementById("board");
+        board.style.gridTemplateColumns = `repeat(${gameState.cols}, 36px)`;
+        board.innerHTML = "";
+
+        for (let r = 0; r < gameState.rows; r++) {
+          for (let c = 0; c < gameState.cols; c++) {
+            const cell = gameState.field[r][c];
+            const el = document.createElement("div");
+            el.className = "cell " + cell.state;
+
+            if (cell.state === "opened") {
+              if (cell.type === "mine") {
+                el.textContent = "💥";
+                el.classList.add("mine-exploded");
+              } else if (cell.neighborMines > 0) {
+                el.textContent = cell.neighborMines;
+                el.classList.add("n" + cell.neighborMines);
+              }
+            } else if (cell.state === "flagged") {
+              el.textContent = "🚩";
+            }
+
+            el.addEventListener("click", () => handleLeftClick(r, c));
+            el.addEventListener("contextmenu", (e) => {
+              e.preventDefault();
+              handleRightClick(r, c);
+            });
+
+            board.appendChild(el);
+          }
+        }
+
+        document.getElementById("mines-left").textContent =
+          gameState.minesCount - countFlags();
+        document.getElementById("timer").textContent = gameState.gameTime;
+
+        const msg = document.getElementById("message");
+        const statusEl = document.getElementById("status-text");
+        if (gameState.status === "win") {
+          msg.textContent = "🎉 Перемога!";
+          msg.className = "win";
+          statusEl.textContent = "Виграно!";
+        } else if (gameState.status === "lose") {
+          msg.textContent = "💀 Програш!";
+          msg.className = "lose";
+          statusEl.textContent = "Програш...";
+        } else {
+          msg.textContent = "";
+          msg.className = "";
+          statusEl.textContent = "Гра йде...";
+        }
+      }
+
+      function handleLeftClick(r, c) {
+        openCell(r, c);
+        render();
+      }
+
+      function handleRightClick(r, c) {
+        toggleFlag(r, c);
+        render();
+      }
+
+      function restartGame() {
+        initGame(10, 10, 15);
+        render();
+      }
+
+      // Патч: оновлювати дисплей щосекунди
+      const _origStart = startTimer;
+      startTimer = function () {
+        _origStart();
+        clearInterval(window._renderTimer);
+        window._renderTimer = setInterval(render, 1000);
+      };
+
+      const _origStop = stopTimer;
+      stopTimer = function () {
+        _origStop();
+        clearInterval(window._renderTimer);
+      };
+
+      restartGame();
+    </script>
+  </body>
+</html>
