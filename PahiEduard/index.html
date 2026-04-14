@@ -7,15 +7,16 @@
     <link rel="stylesheet" href="styles.css" />
   </head>
   <body>
-    <div class="game">
+    <main class="game">
 
-      <div class="header">
+      <header class="header">
         <div class="counter">🚩 <span>010</span></div>
-        <button class="restartbtn">🔄</button>
+        <button class="restartbtn" type="button" aria-label="Restart game">🔄</button>
         <div class="counter">⏱️ <span>000</span></div>
-      </div>
+      </header>
 
       <div class="board">
+        <!-- Row 1 - closed -->
         <div class="cell closed"></div>
         <div class="cell closed"></div>
         <div class="cell closed"></div>
@@ -26,6 +27,7 @@
         <div class="cell closed"></div>
         <div class="cell closed"></div>
 
+        <!-- Row 2 - open with numbers -->
         <div class="cell open n1">1</div>
         <div class="cell open n2">2</div>
         <div class="cell open n3">3</div>
@@ -36,6 +38,7 @@
         <div class="cell open n8">8</div>
         <div class="cell open"></div>
 
+        <!-- Row 3 - flag, mine states -->
         <div class="cell flag">🚩</div>
         <div class="cell flagMine">🚩</div>
         <div class="cell closed"></div>
@@ -46,6 +49,7 @@
         <div class="cell closed"></div>
         <div class="cell closed"></div>
 
+        <!-- Rows 4-9 - closed -->
         <div class="cell closed"></div><div class="cell closed"></div><div class="cell closed"></div><div class="cell closed"></div><div class="cell closed"></div><div class="cell closed"></div><div class="cell closed"></div><div class="cell closed"></div><div class="cell closed"></div>
         <div class="cell closed"></div><div class="cell closed"></div><div class="cell closed"></div><div class="cell closed"></div><div class="cell closed"></div><div class="cell closed"></div><div class="cell closed"></div><div class="cell closed"></div><div class="cell closed"></div>
         <div class="cell closed"></div><div class="cell closed"></div><div class="cell closed"></div><div class="cell closed"></div><div class="cell closed"></div><div class="cell closed"></div><div class="cell closed"></div><div class="cell closed"></div><div class="cell closed"></div>
@@ -54,6 +58,6 @@
         <div class="cell closed"></div><div class="cell closed"></div><div class="cell closed"></div><div class="cell closed"></div><div class="cell closed"></div><div class="cell closed"></div><div class="cell closed"></div><div class="cell closed"></div><div class="cell closed"></div>
       </div>
 
-    </div>
+    </main>
   </body>
-</html>
+</html>git add PahiEduard/
