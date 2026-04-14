@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Minesweeper</title>
+    <link rel="stylesheet" href="style.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Bitcount+Grid+Double:wght@100..900&family=Coral+Pixels&family=Playwrite+CU+Guides&display=swap" rel="stylesheet">
+
+</head>
+<body>
+    <div class="title-container">
+        <div>
+            <button class="menu-item" id="restart-btn">Restart</button>
+            <button class="menu-item" id="options-btn">Options</button>
+            <button class="menu-item" id="help-btn">Help</button>
+        </div>
+
+        <div>
+            <div class="header">
+                <div class="counter" id="mines-counter">010</div>
+                <button type="button" class="face-btn" id="face-btn" aria-label="Restart game"></button>
+                <div class="counter" id="timer-counter">000</div>
+            </div>
+        </div>
+
+        <div class="field" id="field" role="grid" aria-label="Minesweeper field" tabindex="0">
+        </div>
+
+        <div class="status-message" id="status-message" role="status" aria-live="polite"></div>
+    </div>
+
+    <script src="script.js"></script>
+</body>
+</html>

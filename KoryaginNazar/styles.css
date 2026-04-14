@@ -1,0 +1,190 @@
+* {
+  box-sizing: border-box;
+}
+
+:root {
+  --board-cell-size: 40px;
+}
+
+body {
+  min-height: 100vh;
+  margin: 0;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  background: #d7d7d7;
+  font-family: 'Trebuchet MS', Tahoma, sans-serif;
+}
+
+.minesweeper {
+  padding: 10px;
+  border: 3px solid #bdbdbd;
+  background: #c0c0c0;
+  box-shadow: inset -2px -2px 0 #7a7a7a, inset 2px 2px 0 #ffffff;
+}
+
+.menu {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  padding: 6px;
+  border: 2px solid #8b8b8b;
+  background: #c0c0c0;
+  box-shadow: inset -2px -2px 0 #ffffff, inset 2px 2px 0 #8f8f8f;
+}
+
+.counter-display {
+  width: 68px;
+  height: 42px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  font-size: 30px;
+  font-weight: 700;
+  letter-spacing: 1px;
+  border: 2px solid #6b6b6b;
+  background: #000;
+  color: #ff2323;
+  box-shadow: inset -1px -1px 0 #b5b5b5, inset 1px 1px 0 #242424;
+}
+
+.restart-button {
+  width: 44px;
+  height: 44px;
+  border: 2px solid #8f8f8f;
+  background: #c0c0c0;
+  box-shadow: inset -2px -2px 0 #8f8f8f, inset 2px 2px 0 #ffffff;
+  cursor: pointer;
+  font-size: 24px;
+  line-height: 1;
+}
+
+.restart-button:active {
+  box-shadow: inset -2px -2px 0 #ffffff, inset 2px 2px 0 #8f8f8f;
+}
+
+.status-message {
+  margin: 10px 0;
+  min-height: 22px;
+  padding: 4px 8px;
+  font-size: 14px;
+  font-weight: 700;
+  color: #1f1f1f;
+  border: 2px solid #8b8b8b;
+  background: #d6d6d6;
+  box-shadow: inset -1px -1px 0 #ffffff, inset 1px 1px 0 #8f8f8f;
+}
+
+.playing-field {
+  display: grid;
+  border: 2px solid #8b8b8b;
+  background: #bdbdbd;
+  box-shadow: inset -2px -2px 0 #ffffff, inset 2px 2px 0 #8f8f8f;
+}
+
+.board-cell {
+  width: var(--board-cell-size);
+  height: var(--board-cell-size);
+  font-size: 24px;
+  font-weight: 700;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: 1px solid #9a9a9a;
+  user-select: none;
+}
+
+.open {
+  background: #e3e3e3;
+}
+
+.closed {
+  background: #c0c0c0;
+  border-color: #8f8f8f;
+  box-shadow: inset 0 0 0 1px #dcdcdc;
+  cursor: pointer;
+}
+
+.closed:hover {
+  background: #c9c9c9;
+}
+
+.adjacent-mine-count-1::before {
+  content: '1';
+  color: #0000ff;
+}
+
+.adjacent-mine-count-2::before {
+  content: '2';
+  color: #008000;
+}
+
+.adjacent-mine-count-3::before {
+  content: '3';
+  color: #ff0000;
+}
+
+.adjacent-mine-count-4::before {
+  content: '4';
+  color: #000080;
+}
+
+.adjacent-mine-count-5::before {
+  content: '5';
+  color: #7b0000;
+}
+
+.adjacent-mine-count-6::before {
+  content: '6';
+  color: #007b7b;
+}
+
+.adjacent-mine-count-7::before {
+  content: '7';
+  color: #161616;
+}
+
+.adjacent-mine-count-8::before {
+  content: '8';
+  color: #7a7a7a;
+}
+
+.flag::before {
+  content: '🚩';
+  font-size: 20px;
+}
+
+.bomb::before {
+  content: '💣';
+  font-size: 20px;
+}
+
+.exploded-bomb {
+  background: #ff3b30;
+}
+
+.exploded-bomb::before {
+  content: '💣';
+  font-size: 20px;
+}
+
+@media (max-width: 540px) {
+  :root {
+    --board-cell-size: 34px;
+  }
+
+  body {
+    align-items: flex-start;
+    padding: 14px;
+  }
+
+  .counter-display {
+    width: 62px;
+    font-size: 28px;
+  }
+
+  .board-cell {
+    font-size: 20px;
+  }
+}
