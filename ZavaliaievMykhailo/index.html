@@ -40,18 +40,19 @@
           role="status"
           aria-live="polite"
         >Ready to play</span>
-        <span class="board-meta" id="board-meta">10x10 - 15 mines</span>
+        <span class="board-meta" id="board-meta">Preparing board</span>
       </div>
 
-      <section
+      <div
         class="board"
         id="board"
-        style="--cols:10"
-        role="grid"
-        aria-label="Minesweeper board 10 by 10"
-      ></section>
+        aria-label="Minesweeper board"
+        aria-describedby="board-hint"
+      ></div>
 
-      <p class="board-hint">The grid is created by JavaScript when a new game starts.</p>
+      <p class="board-hint" id="board-hint">
+        Left click or press Enter to open a cell. Right click or press F on a focused cell to place a flag.
+      </p>
     </section>
   </main>
 </div>

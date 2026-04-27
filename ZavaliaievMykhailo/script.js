@@ -335,6 +335,7 @@ function initializeBoard() {
         'aria-label',
         getCellAriaLabel(rowIndex, colIndex, 'Closed cell'),
       );
+      button.setAttribute('aria-keyshortcuts', 'F');
       button.style.setProperty(
         '--cell-delay',
         `${Math.min((rowIndex * gameState.cols + colIndex) * 12, 240)}ms`,
@@ -353,8 +354,6 @@ function initializeBoard() {
     'aria-label',
     `Minesweeper board ${gameState.rows} by ${gameState.cols}`,
   );
-  elements.board.setAttribute('aria-rowcount', String(gameState.rows));
-  elements.board.setAttribute('aria-colcount', String(gameState.cols));
 }
 
 function getFlagsPlaced() {
@@ -532,8 +531,30 @@ function handleBoardContextMenu(event) {
   toggleFlag(Number(cellButton.dataset.row), Number(cellButton.dataset.col));
 }
 
+function handleBoardKeyDown(event) {
+  if (
+    event.key.toLowerCase() !== 'f'
+    || event.repeat
+    || event.altKey
+    || event.ctrlKey
+    || event.metaKey
+  ) {
+    return;
+  }
+
+  const cellButton = event.target.closest('.cell');
+
+  if (!cellButton) {
+    return;
+  }
+
+  event.preventDefault();
+  toggleFlag(Number(cellButton.dataset.row), Number(cellButton.dataset.col));
+}
+
 elements.board.addEventListener('click', handleBoardClick);
 elements.board.addEventListener('contextmenu', handleBoardContextMenu);
+elements.board.addEventListener('keydown', handleBoardKeyDown);
 elements.resetButton.addEventListener('click', resetGame);
 
 resetGame();
