@@ -17,8 +17,8 @@ Apply the following rules to merge the two verdicts (Claude and Codex) into a si
 | `not_relevant` | `not_relevant` | `not_relevant` | Both agree — dismiss             |
 | `fixed`        | `not_fixed`    | `not_fixed`    | Disagreement — conservative      |
 | `not_fixed`    | `fixed`        | `not_fixed`    | Disagreement — conservative      |
-| `fixed`        | `not_relevant` | `not_relevant` | Disagreement — Claude defers     |
-| `not_relevant` | `fixed`        | `not_relevant` | Disagreement — Codex defers      |
+| `fixed`        | `not_relevant` | `fixed`        | Disagreement — Claude defers     |
+| `not_relevant` | `fixed`        | `fixed`        | Disagreement — Codex defers      |
 | `not_fixed`    | `not_relevant` | `not_fixed`    | `not_fixed` beats `not_relevant` |
 | `not_relevant` | `not_fixed`    | `not_fixed`    | `not_fixed` beats `not_relevant` |
 

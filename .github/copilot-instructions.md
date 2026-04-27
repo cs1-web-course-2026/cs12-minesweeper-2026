@@ -12,20 +12,20 @@ single-letter names or cryptic abbreviations.
 
 ### Variable naming
 
-| Avoid                    | Use instead                                      |
-| ------------------------ | ------------------------------------------------ |
-| `r`                      | `row`                                            |
-| `c`                      | `col`                                            |
-| `nr`                     | `neighbourRow`                                   |
-| `nc`                     | `neighbourCol`                                   |
-| `dr`                     | `directionalRow`                                 |
-| `dc`                     | `directionalCol`                                 |
-| `i`, `j` (in grid loops) | `row`, `col`                                     |
-| `n`                      | `count` or a domain-specific name                |
-| `el`                     | `element`                                        |
-| `btn`                    | `button`                                         |
-| `val`                    | `value`                                          |
-| `arr`                    | `array` or a domain-specific name (e.g. `cells`) |
+| Avoid                    | Use instead                         |
+| ------------------------ | ----------------------------------- |
+| `r`                      | `row`                               |
+| `c`                      | `col`                               |
+| `nr`                     | `neighbourRow`                      |
+| `nc`                     | `neighbourCol`                      |
+| `dr`                     | `directionalRow`                    |
+| `dc`                     | `directionalCol`                    |
+| `i`, `j` (in grid loops) | `row`, `col`                        |
+| `n`                      | `count` or a domain-specific name   |
+| `el`                     | `element`                           |
+| `btn`                    | `button`                            |
+| `val`                    | `value`                             |
+| `arr`                    | domain-specific name (e.g. `cells`) |
 
 ### Function naming
 
