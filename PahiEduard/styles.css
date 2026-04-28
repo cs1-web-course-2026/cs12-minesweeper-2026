@@ -15,7 +15,8 @@
 body {
   background-color: #1a1a2e;
   display: flex;
-  justify-content:center;
+  flex-direction: column;
+  justify-content: center;
   align-items: center;
   min-height: 100vh;
 }
@@ -24,7 +25,6 @@ body {
   background-color: #16213e;
   border: 3px solid #4a72c0;
   padding: 12px;
-
 }
 
 .header {
@@ -35,10 +35,10 @@ body {
   border: 2px solid #4a72c0;
   padding: 8px 12px;
   margin-bottom: 10px;
+  width: 100%;
 }
 
-
-.counter{
+.counter {
   background-color: #000000;
   border: 2px solid #4a72c0;
   padding: 4px 10px;
@@ -55,14 +55,13 @@ body {
   border: 2px solid #4a72c0;
   padding: 4px 12px;
   cursor: pointer;
-
 }
 
-.restartbtn:hover{
+.restartbtn:hover {
   background-color: #3a5aaa;
 }
 
-.board{
+.board {
   display: grid;
   grid-template-columns: repeat(9, 40px);
   grid-template-rows: repeat(9, 40px);
@@ -72,76 +71,72 @@ body {
   padding: 4px;
 }
 
-.cell{
+.cell {
   width: 40px;
   height: 40px;
   display: flex;
   align-items: center;
   justify-content: center;
-  font-family: 'Courier New',monospace;
+  font-family: 'Courier New', monospace;
   font-size: 16px;
   font-weight: bold;
   cursor: pointer;
 }
 
-
-.closed{
+.closed {
   background-color: #2a4a8a;
   border: 2px solid;
   border-color: #4a72c0 #0d1f40 #0d1f40 #4a72c0;
-
 }
 
-.closer:hover{
+.closed:hover {
   background-color: #3a5aaa;
 }
 
-.open{
+.open {
   background-color: #0f1e3d;
   border: 1px solid #1a1a50;
   cursor: default;
 }
 
-.n1 {color: #00b3ff;-webkit-text-stroke: 0.2px white}
-.n2 {color: #01ff09;-webkit-text-stroke: 0.2px white}
-.n3 {color: #ff0000;-webkit-text-stroke: 0.2px white;}
-.n4 {color: #1104a4;-webkit-text-stroke: 0.2px white;}
-.n5 {color: #682902;-webkit-text-stroke: 0.2px white;}
-.n6 {color: #2ec4b6;-webkit-text-stroke: 0.2px white;}
-.n7 {color: #000000;-webkit-text-stroke: 0.2px white;}
-.n8 {color: #fdfdff;-webkit-text-stroke: 0.2px white;}
+.n1 { color: #00b3ff; -webkit-text-stroke: 0.2px white; }
+.n2 { color: #01ff09; -webkit-text-stroke: 0.2px white; }
+.n3 { color: #ff0000; -webkit-text-stroke: 0.2px white; }
+.n4 { color: #1104a4; -webkit-text-stroke: 0.2px white; }
+.n5 { color: #682902; -webkit-text-stroke: 0.2px white; }
+.n6 { color: #2ec4b6; -webkit-text-stroke: 0.2px white; }
+.n7 { color: #000000; -webkit-text-stroke: 0.2px white; }
+.n8 { color: #fdfdff; -webkit-text-stroke: 0.2px white; }
 
-.flag{
+.flag {
   background-color: #2a4a8a;
   border: 2px solid;
   border-color: #4a72c0 #0d1f40 #0d1f40 #4a72c0;
   cursor: default;
   font-size: 24px;
-  
 }
 
-.flagMine{
+.flagMine {
   background-color: #1a3a5c;
   border: 2px solid;
   border-color: #33ff00 #738110 #738110 #33ff00;
   font-size: 24px;
 }
 
-.mine{
+.mine {
   background-color: #c0392b;
   border: 1px solid #8b2020;
   cursor: default;
   font-size: 32px;
 }
 
-.mineHit{
+.mineHit {
   background-color: #fefefe;
   border: 1px solid #8b2020;
   cursor: default;
   animation: blink 0.8s infinite alternate;
   position: relative;
   font-size: 32px;
-  
 }
 
 .mineHit::after {
@@ -150,7 +145,7 @@ body {
   font-size: 48px;
 }
 
-@keyframes blink{
-  from {background-color: #fdeded;}
-  to {background-color: #c315157e;}
+@keyframes blink {
+  from { background-color: #fdeded; }
+  to   { background-color: #c315157e; }
 }
