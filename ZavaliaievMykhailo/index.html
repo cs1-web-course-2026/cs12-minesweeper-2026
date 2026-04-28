@@ -7,7 +7,7 @@
   <link rel="stylesheet" href="styles.css">
 </head>
 <body>
-<div class="page" id="app" data-status="playing">
+<div class="page" id="app" data-status="idle">
   <header class="hero">
     <div class="brand">
       <span class="eyebrow">Logic Puzzle</span>
@@ -33,16 +33,27 @@
   <main class="play-area">
     <section class="board-shell" aria-label="Game area">
       <div class="board-toolbar">
-        <span class="status-pill" id="status-text" role="status" aria-live="polite" data-status="playing">In progress</span>
-        <span class="board-meta" id="board-meta">10x10 - 15 mines</span>
+        <span
+          class="status-pill"
+          id="status-text"
+          data-status="idle"
+          role="status"
+          aria-live="polite"
+        >Ready to play</span>
+        <span class="board-meta" id="board-meta">Preparing board</span>
       </div>
-
-      <p class="game-message" id="game-message" role="status" aria-live="polite" aria-atomic="true"></p>
-      <section class="board" id="board" style="--cols:10" aria-label="Minesweeper board 10 by 10"></section>
-
-      <p class="board-hint">The board starts empty here so JavaScript can generate the cells dynamically.</p>
+      <div
+        class="board"
+        id="board"
+        aria-label="Minesweeper board"
+        aria-describedby="board-hint"
+      ></div>
+      <p class="board-hint" id="board-hint">
+        Left click or press Enter to open a cell. Right click or press F on a focused cell to place a flag.
+      </p>
     </section>
   </main>
 </div>
+<script src="script.js"></script>
 </body>
 </html>
