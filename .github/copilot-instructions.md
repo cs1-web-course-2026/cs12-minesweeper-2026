@@ -200,7 +200,11 @@ Every page must use landmark elements to define its regions:
 - Use `<button type="button">` for every interactive control — never `<div>`, `<span>`, or
   `<input type="button">`.
 - Give the page a meaningful `<title>` — never leave it as "Document".
-- The board container in HTML must be **empty** — cells are created dynamically by JavaScript.
+- **lab1 only:** The board container in HTML **may contain hard-coded cell elements** — lab1
+  is HTML & CSS only, so static markup is expected and correct.
+- **lab3 / lab2-3:** The board container in HTML must be **empty** — cells are created
+  dynamically by JavaScript. Flag a non-empty board container only when a `.js` file is
+  present and wiring up the DOM.
 
 ---
 
