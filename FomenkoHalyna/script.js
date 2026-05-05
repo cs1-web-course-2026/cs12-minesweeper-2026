@@ -1,111 +1,138 @@
 /**
- * 1. Моделювання даних (Data Layer)
+ * КОНСТАНТИ (Enums) - Виправлення згідно з коментарем про "Raw string literals"
  */
-const gameState = {
-    rows: 10,
-    cols: 10,
-    minesCount: 15,
-    status: 'process', // 'process'  'win'  'lose'
-    gameTime: 0,
-    timerId: null,
-    field: [] // Двовимірний масив (сітка)
+const CELL_CONTENT = {
+    MINE: 'mine',
+    EMPTY: 'empty'
+};
+
+const CELL_STATE = {
+    CLOSED: 'closed',
+    OPENED: 'opened',
+    FLAGGED: 'flagged'
+};
+
+const GAME_STATUS = {
+    IDLE: 'idle',
+    PLAYING: 'playing',
+    WON: 'won',
+    LOST: 'lost'
 };
 
 /**
- * 2. Генерацыя поля та мін
+ * НАЛАШТУВАННЯ - Виправлення "Magic numbers"
+ */
+const DEFAULT_ROWS = 10;
+const DEFAULT_COLS = 10;
+const DEFAULT_MINES_COUNT = 15;
+
+const gameState = {
+    rows: DEFAULT_ROWS,
+    cols: DEFAULT_COLS,
+    minesCount: DEFAULT_MINES_COUNT,
+    status: GAME_STATUS.IDLE,
+    gameTime: 0,
+    timerId: null,
+    field: []
+};
+
+/**
+ * ЛОГІКА ГЕНЕРАЦІЇ - Тепер функція "чиста" (Pure function)
  */
 function generateField(rows, cols, minesCount) {
-    gameState.field = [];
-    for (let r = 0; r < rows; r++) {
-        const row = [];
-        for (let c = 0; c < cols; c++) {
-            row.push({
-                type: 'empty',
-                state: 'closed', // 'closed', 'opened', 'flagged'
+    const newField = [];
+    for (let row = 0; row < rows; row++) {
+        const currentRow = [];
+        for (let col = 0; col < cols; col++) {
+            currentRow.push({
+                type: CELL_CONTENT.EMPTY,
+                state: CELL_STATE.CLOSED,
                 neighborMines: 0,
-                row: r,
-                col: c
+                row: row,
+                col: col
             });
         }
-        gameState.field.push(row);
+        newField.push(currentRow);
     }
 
-    // Розстановка мін 
     let minesPlaced = 0;
     while (minesPlaced < minesCount) {
-        const r = Math.floor(Math.random() * rows);
-        const c = Math.floor(Math.random() * cols);
+        const randomRow = Math.floor(Math.random() * rows);
+        const randomCol = Math.floor(Math.random() * cols);
 
-        if (gameState.field[r][c].type !== 'mine') {
-            gameState.field[r][c].type = 'mine';
+        if (newField[randomRow][randomCol].type !== CELL_CONTENT.MINE) {
+            newField[randomRow][randomCol].type = CELL_CONTENT.MINE;
             minesPlaced++;
         }
     }
-    
-    // Виклик підрахунку сусідів
-    countNeighbourMines();
+    return newField;
 }
 
 /**
- * 3. Алгоритмычна частина (Business Logic)
+ * АЛГОРИТМІЧНА ЧАСТИНА - Виправлені імена змінних (Naming)
  */
-function getNeighbors(r, c) {
+function getNeighbors(field, rows, cols, row, col) {
     const neighbors = [];
-    for (let dr = -1; dr <= 1; dr++) {
-        for (let dc = -1; dc <= 1; dc++) {
-            if (dr === 0 && dc === 0) continue;
-            const nr = r + dr;
-            const nc = c + dc;
-            if (nr >= 0 && nr < gameState.rows && nc >= 0 && nc < gameState.cols) {
-                neighbors.push(gameState.field[nr][nc]);
+    for (let directionalRow = -1; directionalRow <= 1; directionalRow++) {
+        for (let directionalCol = -1; directionalCol <= 1; directionalCol++) {
+            if (directionalRow === 0 && directionalCol === 0) continue;
+            
+            const neighbourRow = row + directionalRow;
+            const neighbourCol = col + directionalCol;
+
+            if (neighbourRow >= 0 && neighbourRow < rows && neighbourCol >= 0 && neighbourCol < cols) {
+                neighbors.push(field[neighbourRow][neighbourCol]);
             }
         }
     }
     return neighbors;
 }
 
-function countNeighbourMines() {
-    for (let r = 0; r < gameState.rows; r++) {
-        for (let c = 0; c < gameState.cols; c++) {
-            if (gameState.field[r][c].type === 'mine') continue;
-            const neighbors = getNeighbors(r, c);
-            gameState.field[r][c].neighborMines = neighbors.filter(n => n.type === 'mine').length;
+function countNeighbourMines(field, rows, cols) {
+    for (let row = 0; row < rows; row++) {
+        for (let col = 0; col < cols; col++) {
+            if (field[row][col].type === CELL_CONTENT.MINE) continue;
+            
+            const neighbors = getNeighbors(field, rows, cols, row, col);
+            field[row][col].neighborMines = neighbors.filter(n => n.type === CELL_CONTENT.MINE).length;
         }
     }
 }
 
-function openCell(r, c) {
-    const cell = gameState.field[r][c];
-    if (cell.state !== 'closed' || gameState.status !== 'process') return;
+/**
+ * ІГРОВІ ДІЇ
+ */
+function openCell(row, col) {
+    // Таймер стартує тільки при першому кліку - Виправлення "Timer auto-starts"
+    if (gameState.status === GAME_STATUS.IDLE) {
+        gameState.status = GAME_STATUS.PLAYING;
+        startTimer();
+    }
 
-    if (cell.type === 'mine') {
-        cell.state = 'opened';
-        endGame('lose');
+    const cell = gameState.field[row][col];
+    if (cell.state !== CELL_STATE.CLOSED || gameState.status !== GAME_STATUS.PLAYING) return;
+
+    if (cell.type === CELL_CONTENT.MINE) {
+        cell.state = CELL_STATE.OPENED;
+        endGame(GAME_STATUS.LOST);
         return;
     }
 
-    cell.state = 'opened';
+    cell.state = CELL_STATE.OPENED;
 
-    // Рекурсивне відкриття порожніх клітинок 
     if (cell.neighborMines === 0) {
-        const neighbors = getNeighbors(r, c);
-        neighbors.forEach(n => openCell(n.row, n.col));
+        const neighbors = getNeighbors(gameState.field, gameState.rows, gameState.cols, row, col);
+        neighbors.forEach(n => {
+            if (n.state === CELL_STATE.CLOSED) {
+                openCell(n.row, n.col);
+            }
+        });
     }
     checkWin();
 }
 
-/**
- * 4. Інтерактив та таймер
- * Керування прапорцями, часом та станами перемоги/поразки
- */
-function toggleFlag(r, c) {
-    const cell = gameState.field[r][c];
-    if (gameState.status !== 'process' || cell.state === 'opened') return;
-    cell.state = (cell.state === 'flagged') ? 'closed' : 'flagged';
-}
-
 function startTimer() {
-    if (gameState.timerId) return;
+    if (gameState.timerId) clearInterval(gameState.timerId);
     gameState.timerId = setInterval(() => {
         gameState.gameTime++;
     }, 1000);
@@ -119,14 +146,15 @@ function stopTimer() {
 function endGame(result) {
     gameState.status = result;
     stopTimer();
-    console.log(result === 'win' ? "Перемога!" : "Поразка!");
+    // Прибрано console.log з повідомленням про перемогу - Виправлення "Accessibility"
 }
 
 function checkWin() {
     const allCells = gameState.field.flat();
-    const isWin = allCells.filter(c => c.type === 'empty').every(c => c.state === 'opened');
-    if (isWin) endGame('win');
+    const isWin = allCells.filter(c => c.type === CELL_CONTENT.EMPTY).every(c => c.state === CELL_STATE.OPENED);
+    if (isWin) endGame(GAME_STATUS.WON);
 }
 
-generateField(gameState.rows, gameState.cols, gameState.minesCount);
-startTimer();
+// Ініціалізація
+gameState.field = generateField(gameState.rows, gameState.cols, gameState.minesCount);
+countNeighbourMines(gameState.field, gameState.rows, gameState.cols);
