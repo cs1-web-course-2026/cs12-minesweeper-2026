@@ -17,5 +17,75 @@
       <div class="board" id="board"></div>
       <p id="game-message" role="status" aria-live="polite"></p>
     </main>
+
+    <script src="script.js"></script>
+    <script>
+      function startTimer() {
+          gameState.timerId = setInterval(() => {
+              gameState.gameTime++;
+          }, 1000);
+      }
+
+      function stopTimer() {
+          clearInterval(gameState.timerId);
+          gameState.timerId = null;
+      }
+
+      function renderField(field) {
+          const board = document.getElementById('board');
+          board.innerHTML = '';
+
+          for (let row = 0; row < gameState.rows; row++) {
+              for (let col = 0; col < gameState.cols; col++) {
+                  const cell = field[row][col];
+                  const div = document.createElement('div');
+                  div.classList.add('cell');
+
+                  if (cell.state === CELL_STATE.CLOSED) {
+                      div.classList.add('closed');
+                  } else if (cell.state === CELL_STATE.FLAGGED) {
+                      div.classList.add('flag');
+                      div.textContent = '🚩';
+                  } else if (cell.state === CELL_STATE.OPENED) {
+                      if (cell.type === CELL_TYPE.MINE) {
+                          div.classList.add('mine');
+                          div.textContent = '💣';
+                      } else {
+                          div.classList.add('open');
+                          if (cell.neighborMines > 0) {
+                              div.classList.add('n' + cell.neighborMines);
+                              div.textContent = cell.neighborMines;
+                          }
+                      }
+                  }
+
+                  div.addEventListener('click', () => {
+                      openCell(field, gameState.rows, gameState.cols, row, col);
+                      if (gameState.status !== GAME_STATUS.PROCESS) stopTimer();
+                      renderField(field);
+                  });
+
+                  div.addEventListener('contextmenu', (e) => {
+                      e.preventDefault();
+                      toggleFlag(field, row, col);
+                      renderField(field);
+                  });
+
+                  board.appendChild(div);
+              }
+          }
+      }
+
+      let currentField = startGame();
+      startTimer();
+      renderField(currentField);
+
+      document.querySelector('.restartbtn').addEventListener('click', () => {
+          stopTimer();
+          currentField = startGame();
+          startTimer();
+          renderField(currentField);
+      });
+    </script>
   </body>
 </html>

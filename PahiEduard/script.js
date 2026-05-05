@@ -81,7 +81,6 @@ function openCell(field, rows, cols, row, col) {
 
     if (cell.type === CELL_TYPE.MINE) {
         gameState.status = GAME_STATUS.LOSE;
-        stopTimer();
         return;
     }
 
@@ -123,28 +122,15 @@ function checkWin(field, rows, cols) {
         }
     }
     gameState.status = GAME_STATUS.WIN;
-    stopTimer();
-}
-
-function startTimer() {
-    gameState.timerId = setInterval(() => {
-        gameState.gameTime++;
-    }, 1000);
-}
-
-function stopTimer() {
-    clearInterval(gameState.timerId);
-    gameState.timerId = null;
 }
 
 function startGame() {
-    stopTimer();
     gameState.status = GAME_STATUS.PROCESS;
     gameState.gameTime = 0;
+    gameState.timerId = null;
 
     const field = generateField(gameState.rows, gameState.cols, gameState.minesCount);
     countNeighbourMines(field, gameState.rows, gameState.cols);
-    startTimer();
 
     return field;
 }
