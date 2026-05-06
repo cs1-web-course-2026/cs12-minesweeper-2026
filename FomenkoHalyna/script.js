@@ -1,5 +1,5 @@
 /**
- * КОНСТАНТИ (Enums) - Виправлення згідно з коментарем про "Raw string literals"
+ * КОНСТАНТИ (Enums)
  */
 const CELL_CONTENT = {
     MINE: 'mine',
@@ -20,7 +20,7 @@ const GAME_STATUS = {
 };
 
 /**
- * НАЛАШТУВАННЯ - Виправлення "Magic numbers"
+ * НАЛАШТУВАННЯ
  */
 const DEFAULT_ROWS = 10;
 const DEFAULT_COLS = 10;
@@ -37,10 +37,12 @@ const gameState = {
 };
 
 /**
- * ЛОГІКА ГЕНЕРАЦІЇ - Тепер функція "чиста" (Pure function)
+ * ЛОГІКА ГЕНЕРАЦІЇ - Тепер функція чиста
  */
 function generateField(rows, cols, minesCount) {
-    const newField = [];
+    const field = [];
+
+    // 1. Створення порожнього поля
     for (let row = 0; row < rows; row++) {
         const currentRow = [];
         for (let col = 0; col < cols; col++) {
@@ -52,43 +54,32 @@ function generateField(rows, cols, minesCount) {
                 col: col
             });
         }
-        newField.push(currentRow);
+        field.push(currentRow);
     }
 
+    // 2. Розстановка мін
     let minesPlaced = 0;
     while (minesPlaced < minesCount) {
         const randomRow = Math.floor(Math.random() * rows);
         const randomCol = Math.floor(Math.random() * cols);
 
-        if (newField[randomRow][randomCol].type !== CELL_CONTENT.MINE) {
-            newField[randomRow][randomCol].type = CELL_CONTENT.MINE;
+        if (field[randomRow][randomCol].type !== CELL_CONTENT.MINE) {
+            field[randomRow][randomCol].type = CELL_CONTENT.MINE;
             minesPlaced++;
         }
     }
-    return newField;
+
+    // 3. Підрахунок сусідів внутрішнім викликом (чистота)
+    // Ми викликаємо підрахунок відразу тут, щоб повернути готове поле
+    calculateAllNeighbors(field, rows, cols);
+
+    return field; 
 }
 
 /**
- * АЛГОРИТМІЧНА ЧАСТИНА - Виправлені імена змінних (Naming)
+ * Допоміжна функція для підрахунку (Helper)
  */
-function getNeighbors(field, rows, cols, row, col) {
-    const neighbors = [];
-    for (let directionalRow = -1; directionalRow <= 1; directionalRow++) {
-        for (let directionalCol = -1; directionalCol <= 1; directionalCol++) {
-            if (directionalRow === 0 && directionalCol === 0) continue;
-            
-            const neighbourRow = row + directionalRow;
-            const neighbourCol = col + directionalCol;
-
-            if (neighbourRow >= 0 && neighbourRow < rows && neighbourCol >= 0 && neighbourCol < cols) {
-                neighbors.push(field[neighbourRow][neighbourCol]);
-            }
-        }
-    }
-    return neighbors;
-}
-
-function countNeighbourMines(field, rows, cols) {
+function calculateAllNeighbors(field, rows, cols) {
     for (let row = 0; row < rows; row++) {
         for (let col = 0; col < cols; col++) {
             if (field[row][col].type === CELL_CONTENT.MINE) continue;
@@ -99,11 +90,27 @@ function countNeighbourMines(field, rows, cols) {
     }
 }
 
+function getNeighbors(field, rows, cols, row, col) {
+    const neighbors = [];
+    for (let dRow = -1; dRow <= 1; dRow++) {
+        for (let dCol = -1; dCol <= 1; dCol++) {
+            if (dRow === 0 && dCol === 0) continue;
+            
+            const nRow = row + dRow;
+            const nCol = col + dCol;
+
+            if (nRow >= 0 && nRow < rows && nCol >= 0 && nCol < cols) {
+                neighbors.push(field[nRow][nCol]);
+            }
+        }
+    }
+    return neighbors;
+}
+
 /**
  * ІГРОВІ ДІЇ
  */
 function openCell(row, col) {
-    // Таймер стартує тільки при першому кліку - Виправлення "Timer auto-starts"
     if (gameState.status === GAME_STATUS.IDLE) {
         gameState.status = GAME_STATUS.PLAYING;
         startTimer();
@@ -146,7 +153,6 @@ function stopTimer() {
 function endGame(result) {
     gameState.status = result;
     stopTimer();
-    // Прибрано console.log з повідомленням про перемогу - Виправлення "Accessibility"
 }
 
 function checkWin() {
@@ -155,6 +161,6 @@ function checkWin() {
     if (isWin) endGame(GAME_STATUS.WON);
 }
 
-// Ініціалізація
+// ІНІЦІАЛІЗАЦІЯ (Caller)
+// Саме тут ми присвоюємо результат функції в gameState.field
 gameState.field = generateField(gameState.rows, gameState.cols, gameState.minesCount);
-countNeighbourMines(gameState.field, gameState.rows, gameState.cols);
