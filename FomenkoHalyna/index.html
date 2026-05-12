@@ -1,109 +1,29 @@
-<!doctype html>
+<!DOCTYPE html>
 <html lang="uk">
-  <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Minesweeper UI - Halyna Fomenko</title>
-    <link rel="stylesheet" href="style.css" />
-  </head>
-  <body>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
     <div class="game-container">
-      <div class="menu-bar">
-        <span>Game</span>
-        <span>Options</span>
-        <span>Help</span>
-      </div>
+        <div class="menu-bar" role="menubar">
+            <button type="button" class="menu-bar-button" role="menuitem">Гра</button>
+            <button type="button" class="menu-bar-button" role="menuitem">Опції</button>
+            <button type="button" class="menu-bar-button" role="menuitem">Допомога</button>
+        </div>
 
-      <div class="game-box">
-        <header class="status-panel">
-          <div class="counter">010</div>
-          <button class="reset-button">😊</button>
-          <div class="counter">000</div>
-        </header>
+        <div class="game-box">
+            <header class="status-panel">
+                <div class="counter">015</div>
+                <button class="reset-button" type="button" aria-label="Перезапустити гру">😊</button>
+                <div class="counter">000</div>
+            </header>
 
-        <main class="game-grid">
-          <div class="cell open n1">1</div>
-          <div class="cell open n1">1</div>
-          <div class="cell open"></div>
-          <div class="cell open"></div>
-          <div class="cell open"></div>
-          <div class="cell open"></div>
-          <div class="cell open"></div>
-          <div class="cell open"></div>
-          <div class="cell open"></div>
-          <div class="cell open"></div>
-
-          <div class="cell flag"></div>
-          <div class="cell open n1">1</div>
-          <div class="cell open"></div>
-          <div class="cell open"></div>
-          <div class="cell open"></div>
-          <div class="cell open n1">1</div>
-          <div class="cell open n1">1</div>
-          <div class="cell open n1">1</div>
-          <div class="cell open"></div>
-          <div class="cell open"></div>
-
-          <div class="cell open n1">1</div>
-          <div class="cell open n1">1</div>
-          <div class="cell open"></div>
-          <div class="cell open"></div>
-          <div class="cell open"></div>
-          <div class="cell open n1">1</div>
-          <div class="cell mine"></div>
-          <div class="cell open n1">1</div>
-          <div class="cell open"></div>
-          <div class="cell open"></div>
-
-          <div class="cell open"></div>
-          <div class="cell open"></div>
-          <div class="cell open n1">1</div>
-          <div class="cell open n1">1</div>
-          <div class="cell open n1">1</div>
-          <div class="cell open n1">1</div>
-          <div class="cell open n1">1</div>
-          <div class="cell open n1">1</div>
-          <div class="cell open"></div>
-          <div class="cell open"></div>
-
-          <div class="cell"></div>
-          <div class="cell"></div>
-          <div class="cell flag"></div>
-          <div class="cell mine-exploded"></div>
-          <div class="cell flag-wrong"></div>
-          <div class="cell"></div>
-          <div class="cell"></div>
-          <div class="cell open n2">2</div>
-          <div class="cell open n1">1</div>
-          <div class="cell open"></div>
-
-          <div class="cell"></div>
-          <div class="cell"></div>
-          <div class="cell"></div>
-          <div class="cell"></div>
-          <div class="cell"></div>
-          <div class="cell"></div>
-          <div class="cell"></div>
-          <div class="cell"></div>
-          <div class="cell"></div>
-          <div class="cell"></div>
-          <div class="cell"></div>
-          <div class="cell"></div>
-          <div class="cell"></div>
-          <div class="cell"></div>
-          <div class="cell"></div>
-          <div class="cell"></div>
-          <div class="cell"></div>
-          <div class="cell"></div>
-          <div class="cell"></div>
-          <div class="cell"></div>
-          <div class="cell"></div>
-          <div class="cell"></div>
-          <div class="cell"></div>
-          <div class="cell"></div>
-          <div class="cell"></div>
-        </main>
-      </div>
+            <main class="game-grid" id="game-grid">
+                </main>
+        </div>
     </div>
-  </body>
+</body>
 </html>

@@ -10,7 +10,8 @@ body {
     display: flex;
     justify-content: center;
     align-items: center;
-    height: 100vh;
+    min-height: 100vh;
+    min-height: 100dvh;
     margin: 0;
     font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
 }
@@ -29,10 +30,26 @@ body {
     gap: 12px;
 }
 
-.menu-bar span:hover {
+.menu-bar-button {
+    background: none;
+    border: none;
+    padding: 3px 8px;
+    margin: 0;
+    font: inherit;
+    cursor: pointer;
+    color: black;
+    display: inline-flex;
+    align-items: center;
+}
+
+.menu-bar-button:hover {
     background-color: #000080;
     color: white;
-    cursor: default;
+}
+
+.menu-bar-button:focus-visible {
+    outline: 1px dotted #000;
+    outline-offset: -4px;
 }
 
 .game-box {
@@ -90,6 +107,8 @@ body {
     display: grid;
     grid-template-columns: repeat(10, var(--cell-size));
     border: 3px inset var(--ms-light);
+    max-width: 100%; /* Захист від переповнення */
+    overflow: auto;
 }
 
 /* Базова клітинка */
@@ -116,7 +135,7 @@ body {
 /* Відкрита клітинка */
 .cell.open {
     border: 1px solid var(--ms-dark);
-    background-color: #bdbdbd;
+    background-color: var(--ms-bg);
     cursor: default;
 }
 

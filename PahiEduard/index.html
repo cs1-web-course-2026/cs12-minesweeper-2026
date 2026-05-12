@@ -1,0 +1,21 @@
+<!DOCTYPE html>
+<html lang="uk">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Minesweeper</title>
+    <link rel="stylesheet" href="styles.css" />
+  </head>
+  <body>
+    <header class="header">
+      <div class="counter">🚩 <span>010</span></div>
+      <button class="restartbtn" type="button" aria-label="Restart game">🔄</button>
+      <div class="counter">⏱️ <span>000</span></div>
+    </header>
+
+    <main class="game">
+      <div class="board" id="board"></div>
+      <p id="game-message" role="status" aria-live="polite"></p>
+    </main>
+  </body>
+</html>
