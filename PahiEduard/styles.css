@@ -145,6 +145,15 @@ body {
   font-size: 48px;
 }
 
+#game-message {
+  text-align: center;
+  margin-top: 10px;
+  font-size: 20px;
+  font-weight: bold;
+  color: #ffffff;
+  min-height: 28px;
+}
+
 @keyframes blink {
   from { background-color: #fdeded; }
   to   { background-color: #c315157e; }
