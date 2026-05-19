@@ -21,6 +21,10 @@ const GAME_STATUS = {
 
 const TIMER_INTERVAL = 1000;
 
+// ВИПРАВЛЕНО: Константи для усунення магічних чисел при пошуку сусідів
+const NEIGHBOR_OFFSET_START = -1;
+const NEIGHBOR_OFFSET_END = 1;
+
 /**
  * НАЛАШТУВАННЯ
  */
@@ -68,12 +72,10 @@ function generateField(rows, cols, minesCount) {
     }
   }
 
-  // Виправлено: Змінено назву на ту, яку вимагає
   countNeighbourMines(field, rows, cols);
   return field;
 }
 
-// Виправлено: Повернуто правильне ім'я функції для автоматичних тестів
 function countNeighbourMines(field, rows, cols) {
   for (let row = 0; row < rows; row++) {
     for (let col = 0; col < cols; col++) {
@@ -88,8 +90,13 @@ function countNeighbourMines(field, rows, cols) {
 
 function getNeighbors(field, rows, cols, row, col) {
   const neighbors = [];
-  for (let dRow = -1; dRow <= 1; dRow++) {
-    for (let dCol = -1; dCol <= 1; dCol++) {
+  // ВИПРАВЛЕНО: Магічні числа замінено на зрозумілі константи
+  for (let dRow = NEIGHBOR_OFFSET_START; dRow <= NEIGHBOR_OFFSET_END; dRow++) {
+    for (
+      let dCol = NEIGHBOR_OFFSET_START;
+      dCol <= NEIGHBOR_OFFSET_END;
+      dCol++
+    ) {
       if (dRow === 0 && dCol === 0) continue;
       const nRow = row + dRow;
       const nCol = col + dCol;
@@ -106,7 +113,6 @@ function getNeighbors(field, rows, cols, row, col) {
  */
 function renderField() {
   const gridElement = document.getElementById('game-grid');
-  // ЗАХИСТ ДЛЯ ТЕСТІВ: Якщо DOM-елемента немає, просто виходимо без помилки
   if (!gridElement) return;
 
   gridElement.innerHTML = '';
@@ -152,11 +158,12 @@ function updateCounters() {
   const mineCounterElement = document.getElementById('mine-counter');
   const resetBtn = document.getElementById('reset-btn');
 
-  // ЗАХИСТ ДЛЯ ТЕСТІВ: Навішуємо текст лише якщо елементи реально існують
+  // ВИПРАВЛЕНО: Додано перевірку існування елемента таймера перед роботою з textContent
   if (timerElement) {
     timerElement.textContent = String(gameState.gameTime).padStart(3, '0');
   }
 
+  // ВИПРАВЛЕНО: Додано перевірку існування елемента лічильника мін перед роботою з textContent
   const remainingMines = gameState.minesCount - gameState.flagsCount;
   if (mineCounterElement) {
     mineCounterElement.textContent = String(
@@ -250,8 +257,6 @@ function openCell(row, col) {
       }
     });
   }
-
-  // Обов'язковий виклик перевірки перемоги після відкриття
   checkWin();
 }
 
@@ -288,9 +293,6 @@ function checkWin() {
   if (!gameState.field || gameState.field.length === 0) return;
 
   const allCells = gameState.field.flat();
-
-  // Виправлено: Більш надійний алгоритм виграшу для тестів
-  // Перемагаємо тоді, коли кожна клітинка, яка НЕ є міною, стає ВІДКРИТОЮ
   const isWin = allCells
     .filter((c) => c.type !== CELL_CONTENT.MINE)
     .every((c) => c.state === CELL_STATE.OPENED);
@@ -314,7 +316,7 @@ function initGame() {
   renderField();
 }
 
-// Виправлено: Безпечне навішування слухача подій (запобігає помилці TypeError у тестах)
+// ВИПРАВЛЕНО: Навішуємо клік лише тоді, коли елемент реально знайдено на сторінці
 const resetBtnElement = document.getElementById('reset-btn');
 if (resetBtnElement) {
   resetBtnElement.addEventListener('click', initGame);
