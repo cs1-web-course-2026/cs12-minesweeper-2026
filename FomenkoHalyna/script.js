@@ -21,7 +21,6 @@ const GAME_STATUS = {
 
 const TIMER_INTERVAL = 1000;
 
-// ВИПРАВЛЕНО: Константи для усунення магічних чисел при пошуку сусідів
 const NEIGHBOR_OFFSET_START = -1;
 const NEIGHBOR_OFFSET_END = 1;
 
@@ -90,7 +89,6 @@ function countNeighbourMines(field, rows, cols) {
 
 function getNeighbors(field, rows, cols, row, col) {
   const neighbors = [];
-  // ВИПРАВЛЕНО: Магічні числа замінено на зрозумілі константи
   for (let dRow = NEIGHBOR_OFFSET_START; dRow <= NEIGHBOR_OFFSET_END; dRow++) {
     for (
       let dCol = NEIGHBOR_OFFSET_START;
@@ -130,19 +128,37 @@ function renderField() {
       cellButton.dataset.row = row;
       cellButton.dataset.col = col;
 
+      // ВИПРАВЛЕНО: Синхронізація назв класів із CSS (open, flag, n1, n2...) та додавання стилів
       if (cellData.state === CELL_STATE.OPENED) {
-        cellButton.classList.add('opened');
+        cellButton.classList.add('open');
         if (cellData.type === CELL_CONTENT.MINE) {
-          cellButton.textContent = '💣';
           cellButton.classList.add('mine');
         } else if (cellData.neighborMines > 0) {
+          cellButton.classList.add(`n${cellData.neighborMines}`);
           cellButton.textContent = cellData.neighborMines;
-          cellButton.classList.add(`number-${cellData.neighborMines}`);
         }
       } else if (cellData.state === CELL_STATE.FLAGGED) {
-        cellButton.textContent = '🚩';
-        cellButton.classList.add('flagged');
+        cellButton.classList.add('flag');
       }
+
+      // ВИПРАВЛЕНО: Генерація динамічного aria-label для доступності (Accessibility)
+      let cellLabel = `Рядок ${row + 1}, стовпець ${col + 1}, закрита`;
+      if (cellData.state === CELL_STATE.FLAGGED) {
+        cellLabel = `Рядок ${row + 1}, стовпець ${col + 1}, прапорець`;
+      } else if (
+        cellData.state === CELL_STATE.OPENED &&
+        cellData.type === CELL_CONTENT.MINE
+      ) {
+        cellLabel = `Рядок ${row + 1}, стовпець ${col + 1}, міна`;
+      } else if (
+        cellData.state === CELL_STATE.OPENED &&
+        cellData.neighborMines > 0
+      ) {
+        cellLabel = `Рядок ${row + 1}, стовпець ${col + 1}, ${cellData.neighborMines} мін поруч`;
+      } else if (cellData.state === CELL_STATE.OPENED) {
+        cellLabel = `Рядок ${row + 1}, стовпець ${col + 1}, порожня`;
+      }
+      cellButton.setAttribute('aria-label', cellLabel);
 
       cellButton.addEventListener('click', handleCellClick);
       cellButton.addEventListener('contextmenu', handleCellContextMenu);
@@ -157,13 +173,12 @@ function updateCounters() {
   const timerElement = document.getElementById('timer');
   const mineCounterElement = document.getElementById('mine-counter');
   const resetBtn = document.getElementById('reset-btn');
+  const messageElement = document.getElementById('game-message');
 
-  // ВИПРАВЛЕНО: Додано перевірку існування елемента таймера перед роботою з textContent
   if (timerElement) {
     timerElement.textContent = String(gameState.gameTime).padStart(3, '0');
   }
 
-  // ВИПРАВЛЕНО: Додано перевірку існування елемента лічильника мін перед роботою з textContent
   const remainingMines = gameState.minesCount - gameState.flagsCount;
   if (mineCounterElement) {
     mineCounterElement.textContent = String(
@@ -178,6 +193,17 @@ function updateCounters() {
       resetBtn.textContent = '😵';
     } else {
       resetBtn.textContent = '😊';
+    }
+  }
+
+  // ВИПРАВЛЕНО: Оновлення тексту повідомлення про статус гри
+  if (messageElement) {
+    if (gameState.status === GAME_STATUS.WON) {
+      messageElement.textContent = 'Ви виграли!';
+    } else if (gameState.status === GAME_STATUS.LOST) {
+      messageElement.textContent = 'Гра закінчена. Ви підірвалися на міні.';
+    } else {
+      messageElement.textContent = '';
     }
   }
 }
@@ -316,7 +342,6 @@ function initGame() {
   renderField();
 }
 
-// ВИПРАВЛЕНО: Навішуємо клік лише тоді, коли елемент реально знайдено на сторінці
 const resetBtnElement = document.getElementById('reset-btn');
 if (resetBtnElement) {
   resetBtnElement.addEventListener('click', initGame);
