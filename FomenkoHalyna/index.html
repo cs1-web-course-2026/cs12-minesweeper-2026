@@ -1,43 +1,29 @@
-<!doctype html>
+<!DOCTYPE html>
 <html lang="uk">
-  <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Minesweeper UI - Halyna Fomenko</title>
-    <link rel="stylesheet" href="style.css" />
-  </head>
-  <body>
+    <link rel="stylesheet" href="style.css">
+    <script src="script.js" defer></script>
+</head>
+<body>
     <div class="game-container">
-      <div class="menu-bar" role="menubar">
-        <button type="button" class="menu-bar-button" role="menuitem">
-          Гра
-        </button>
-        <button type="button" class="menu-bar-button" role="menuitem">
-          Опції
-        </button>
-        <button type="button" class="menu-bar-button" role="menuitem">
-          Допомога
-        </button>
-      </div>
+        <div class="menu-bar" role="menubar">
+            <button type="button" class="menu-bar-button" role="menuitem">Гра</button>
+            <button type="button" class="menu-bar-button" role="menuitem">Опції</button>
+            <button type="button" class="menu-bar-button" role="menuitem">Допомога</button>
+        </div>
 
-      <div class="game-box">
-        <header class="status-panel">
-          <div class="counter" id="mine-counter">015</div>
-          <button
-            class="reset-button"
-            type="button"
-            id="reset-btn"
-            aria-label="Перезапустити гру"
-          >
-            😊
-          </button>
-          <div class="counter" id="timer">000</div>
-        </header>
+        <div class="game-box">
+            <header class="status-panel">
+                <div class="counter" id="mine-counter">015</div>
+                <button class="reset-button" type="button" id="reset-btn" aria-label="Перезапустити гру">😊</button>
+                <div class="counter" id="timer">000</div>
+            </header>
 
-        <main class="game-grid" id="game-grid"></main>
-      </div>
+            <main class="game-grid" id="game-grid"></main>
+        </div>
     </div>
-
-    <script src="script.js"></script>
-  </body>
+</body>
 </html>
