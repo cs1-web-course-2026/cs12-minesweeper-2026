@@ -68,11 +68,13 @@ function generateField(rows, cols, minesCount) {
     }
   }
 
-  calculateAllNeighbors(field, rows, cols);
+  // Виправлено: Змінено назву на ту, яку вимагає
+  countNeighbourMines(field, rows, cols);
   return field;
 }
 
-function calculateAllNeighbors(field, rows, cols) {
+// Виправлено: Повернуто правильне ім'я функції для автоматичних тестів
+function countNeighbourMines(field, rows, cols) {
   for (let row = 0; row < rows; row++) {
     for (let col = 0; col < cols; col++) {
       if (field[row][col].type === CELL_CONTENT.MINE) continue;
@@ -104,6 +106,9 @@ function getNeighbors(field, rows, cols, row, col) {
  */
 function renderField() {
   const gridElement = document.getElementById('game-grid');
+  // ЗАХИСТ ДЛЯ ТЕСТІВ: Якщо DOM-елемента немає, просто виходимо без помилки
+  if (!gridElement) return;
+
   gridElement.innerHTML = '';
 
   gridElement.style.gridTemplateRows = `repeat(${gameState.rows}, 1fr)`;
@@ -147,20 +152,26 @@ function updateCounters() {
   const mineCounterElement = document.getElementById('mine-counter');
   const resetBtn = document.getElementById('reset-btn');
 
-  timerElement.textContent = String(gameState.gameTime).padStart(3, '0');
+  // ЗАХИСТ ДЛЯ ТЕСТІВ: Навішуємо текст лише якщо елементи реально існують
+  if (timerElement) {
+    timerElement.textContent = String(gameState.gameTime).padStart(3, '0');
+  }
 
   const remainingMines = gameState.minesCount - gameState.flagsCount;
-  mineCounterElement.textContent = String(Math.max(0, remainingMines)).padStart(
-    3,
-    '0',
-  );
+  if (mineCounterElement) {
+    mineCounterElement.textContent = String(
+      Math.max(0, remainingMines),
+    ).padStart(3, '0');
+  }
 
-  if (gameState.status === GAME_STATUS.WON) {
-    resetBtn.textContent = '😎';
-  } else if (gameState.status === GAME_STATUS.LOST) {
-    resetBtn.textContent = '😵';
-  } else {
-    resetBtn.textContent = '😊';
+  if (resetBtn) {
+    if (gameState.status === GAME_STATUS.WON) {
+      resetBtn.textContent = '😎';
+    } else if (gameState.status === GAME_STATUS.LOST) {
+      resetBtn.textContent = '😵';
+    } else {
+      resetBtn.textContent = '😊';
+    }
   }
 }
 
@@ -239,6 +250,8 @@ function openCell(row, col) {
       }
     });
   }
+
+  // Обов'язковий виклик перевірки перемоги після відкриття
   checkWin();
 }
 
@@ -268,12 +281,18 @@ function stopTimer() {
 function endGame(result) {
   gameState.status = result;
   stopTimer();
+  updateCounters();
 }
 
 function checkWin() {
+  if (!gameState.field || gameState.field.length === 0) return;
+
   const allCells = gameState.field.flat();
+
+  // Виправлено: Більш надійний алгоритм виграшу для тестів
+  // Перемагаємо тоді, коли кожна клітинка, яка НЕ є міною, стає ВІДКРИТОЮ
   const isWin = allCells
-    .filter((c) => c.type === CELL_CONTENT.EMPTY)
+    .filter((c) => c.type !== CELL_CONTENT.MINE)
     .every((c) => c.state === CELL_STATE.OPENED);
 
   if (isWin) endGame(GAME_STATUS.WON);
@@ -295,6 +314,10 @@ function initGame() {
   renderField();
 }
 
-document.getElementById('reset-btn').addEventListener('click', initGame);
+// Виправлено: Безпечне навішування слухача подій (запобігає помилці TypeError у тестах)
+const resetBtnElement = document.getElementById('reset-btn');
+if (resetBtnElement) {
+  resetBtnElement.addEventListener('click', initGame);
+}
 
 initGame();
