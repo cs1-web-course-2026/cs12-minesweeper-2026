@@ -1,0 +1,23 @@
+<!DOCTYPE html>
+<html lang="uk">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Minesweeper</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+
+    <div class="minesweeper-container">
+        <header class="game-header">
+            <div class="scoreboard timer" id="timer" title="Час гри">000</div>
+            <button class="reset-btn" id="reset-button" title="Почати нову гру">🙂</button>
+            <div class="scoreboard flag-counter" id="flag-counter" title="Залишилось прапорців">010</div>
+        </header>
+
+        <main class="game-board" id="game-board"></main>
+    </div>
+
+    <script type="module" src="src/main.js"></script>
+</body>
+</html>
